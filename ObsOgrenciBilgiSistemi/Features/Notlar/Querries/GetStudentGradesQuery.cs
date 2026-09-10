@@ -11,11 +11,11 @@ namespace ObsOgrenciBilgiSistemi.Features.Notlar.Queries
 
     public class StudentGradeDto
     {
-        public string DersAdi { get; set; }
+        public string DersAdi { get; set; } = string.Empty;
         public decimal? Vize { get; set; }
         public decimal? Final { get; set; }
         public decimal? Ortalama { get; set; }
-        public string HarfNotu { get; set; }
+        public string HarfNotu { get; set; } = string.Empty;
     }
 
     public class GetStudentGradesQueryHandler : IRequestHandler<GetStudentGradesQuery, List<StudentGradeDto>>

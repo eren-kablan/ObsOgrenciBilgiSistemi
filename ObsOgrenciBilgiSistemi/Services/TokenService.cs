@@ -17,11 +17,21 @@ namespace ObsOgrenciBilgiSistemi.Services
 
         public string CreateToken(AppUser user, IList<string> roles)
         {
+            var email = user.Email ?? user.UserName
+                ?? throw new InvalidOperationException("Token oluşturmak için kullanıcının e-posta adresi gereklidir.");
+            var jwtKey = _configuration["Jwt:Key"]
+                ?? throw new InvalidOperationException("Jwt:Key yapılandırması bulunamadı.");
+
+            if (!double.TryParse(_configuration["Jwt:ExpireDays"], out var expireDays) || expireDays <= 0)
+            {
+                throw new InvalidOperationException("Jwt:ExpireDays pozitif bir sayı olmalıdır.");
+            }
+
             var claims = new List<Claim>
             {
                 
                 new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-                new Claim(ClaimTypes.Email, user.Email),
+                new Claim(ClaimTypes.Email, email),
                 new Claim(ClaimTypes.Name, user.Ad)
             };
 
@@ -30,13 +40,13 @@ namespace ObsOgrenciBilgiSistemi.Services
                 claims.Add(new Claim(ClaimTypes.Role, role));
             }
 
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]));
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
             var tokenDescriptor = new SecurityTokenDescriptor
             {
                 Subject = new ClaimsIdentity(claims),
-                Expires = DateTime.UtcNow.AddDays(double.Parse(_configuration["Jwt:ExpireDays"])),
+                Expires = DateTime.UtcNow.AddDays(expireDays),
                 Issuer = _configuration["Jwt:Issuer"],
                 Audience = _configuration["Jwt:Audience"],
                 SigningCredentials = creds

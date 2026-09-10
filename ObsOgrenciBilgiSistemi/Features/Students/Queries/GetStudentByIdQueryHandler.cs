@@ -7,7 +7,7 @@ using ObsOgrenciBilgiSistemi.DTOs;
 
 namespace ObsOgrenciBilgiSistemi.Features.Students.Queries
 {
-    public class GetStudentByIdQueryHandler : IRequestHandler<GetStudentByIdQuery, StudentDto>
+    public class GetStudentByIdQueryHandler : IRequestHandler<GetStudentByIdQuery, StudentDto?>
     {
         private readonly AppDbContext _context;
 
@@ -16,7 +16,7 @@ namespace ObsOgrenciBilgiSistemi.Features.Students.Queries
             _context = context;
         }
 
-        public async Task<StudentDto> Handle(GetStudentByIdQuery request, CancellationToken cancellationToken)
+        public async Task<StudentDto?> Handle(GetStudentByIdQuery request, CancellationToken cancellationToken)
         {
             var entity = await _context.Ogrenciler
                 .FirstOrDefaultAsync(s => s.Id == request.Id, cancellationToken);

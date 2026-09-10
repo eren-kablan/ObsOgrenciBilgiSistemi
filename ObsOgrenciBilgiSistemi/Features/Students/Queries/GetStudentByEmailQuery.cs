@@ -3,8 +3,8 @@ using ObsOgrenciBilgiSistemi.Models;
 
 namespace ObsOgrenciBilgiSistemi.Features.Students.Queries
 {
-    public class GetStudentByEmailQuery : IRequest<Ogrenci>
+    public class GetStudentByEmailQuery : IRequest<Ogrenci?>
     {
-        public string Email { get; set; }
+        public string Email { get; set; } = string.Empty;
     }
 }

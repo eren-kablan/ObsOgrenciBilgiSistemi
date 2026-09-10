@@ -9,6 +9,6 @@ namespace ObsOgrenciBilgiSistemi.Features.Departments.Queries
     public class DepartmentDto
     {
         public int Id { get; set; }
-        public string Adi { get; set; }
+        public string Adi { get; set; } = string.Empty;
     }
 }

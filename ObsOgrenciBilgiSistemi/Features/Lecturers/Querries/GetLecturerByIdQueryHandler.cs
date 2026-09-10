@@ -4,7 +4,7 @@ using ObsOgrenciBilgiSistemi.Data;
 
 namespace ObsOgrenciBilgiSistemi.Features.Lecturers.Queries
 {
-    public class GetLecturerByIdQueryHandler : IRequestHandler<GetLecturerByIdQuery, LecturerDto>
+    public class GetLecturerByIdQueryHandler : IRequestHandler<GetLecturerByIdQuery, LecturerDto?>
     {
         private readonly AppDbContext _context;
 
@@ -13,7 +13,7 @@ namespace ObsOgrenciBilgiSistemi.Features.Lecturers.Queries
             _context = context;
         }
 
-        public async Task<LecturerDto> Handle(GetLecturerByIdQuery request, CancellationToken cancellationToken)
+        public async Task<LecturerDto?> Handle(GetLecturerByIdQuery request, CancellationToken cancellationToken)
         {
             var lecturer = await _context.Akademisyenler
                 .Include(a => a.Bolum)

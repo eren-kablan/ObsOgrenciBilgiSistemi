@@ -9,7 +9,7 @@ namespace ObsOgrenciBilgiSistemi.Features.Auth.Commands
 {
     public class RegisterCommand : IRequest<string>
     {
-        public RegisterDto RegisterDto { get; set; }
+        public RegisterDto RegisterDto { get; set; } = null!;
     }
 
     public class RegisterCommandHandler : IRequestHandler<RegisterCommand, string>

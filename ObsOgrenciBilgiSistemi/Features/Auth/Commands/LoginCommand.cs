@@ -74,7 +74,7 @@ namespace ObsOgrenciBilgiSistemi.Features.Auth.Commands
             var response = new LoginResponseDto
             {
                 Token = token,
-                Email = user.Email,
+                Email = user.Email ?? loginKey,
                 Role = roles.FirstOrDefault() ?? "Student",
                 IsFirstLogin = user.IsFirstLogin,
                 Ad = user.Ad,

@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace ObsOgrenciBilgiSistemi.Features.Students.Queries
 {
-    public class GetStudentByEmailQueryHandler : IRequestHandler<GetStudentByEmailQuery, Ogrenci>
+    public class GetStudentByEmailQueryHandler : IRequestHandler<GetStudentByEmailQuery, Ogrenci?>
     {
         private readonly AppDbContext _context;
 
@@ -16,7 +16,7 @@ namespace ObsOgrenciBilgiSistemi.Features.Students.Queries
             _context = context;
         }
 
-        public async Task<Ogrenci> Handle(GetStudentByEmailQuery request, CancellationToken cancellationToken)
+        public async Task<Ogrenci?> Handle(GetStudentByEmailQuery request, CancellationToken cancellationToken)
         {
             return await _context.Ogrenciler
                 .Include(o => o.Bolum)
