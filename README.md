@@ -11,6 +11,18 @@ ASP.NET Core 8, Entity Framework Core, SQL Server ve Angular 17 ile geliştirilm
 - Duyurular, bildirimler ve hesap aktivasyonu
 - Düzce Üniversitesi EBS üzerinden müfredat aktarımı
 
+## Ekran görüntüleri
+
+### Kullanıcı girişi
+
+![Öğrenci Bilgi Sistemi kullanıcı giriş ekranı](docs/screenshots/sistem_giris.png)
+
+### Yönetici paneli
+
+![Öğrenci Bilgi Sistemi yönetici paneli](docs/screenshots/admin_paneli.png)
+
+Görüntüler yerel geliştirme ortamına aittir ve gerçek bir üniversite OBS hizmetini temsil etmez.
+
 ## Proje yapısı
 
 - `ObsOgrenciBilgiSistemi/`: ASP.NET Core API ve veritabanı migration dosyaları
@@ -28,7 +40,7 @@ Gereksinimler: .NET 8 SDK, Angular 17 ile uyumlu Node.js/npm ve SQL Server (Wind
 5. `dotnet run --launch-profile https` ile API'yi başlatın. İlk açılışta roller ve yapılandırılmış yönetici oluşturulur. Mevcut yönetici şifresi açılışta sıfırlanmaz. İlk kurulumdan sonra `BootstrapAdmin:Password` alanını yerel dosyadan kaldırabilirsiniz.
 6. Angular dizininde `npm ci` ve `npm start` çalıştırın. Gerekirse `dotnet dev-certs https --trust` ile yerel geliştirme sertifikasına güvenin.
 
-API adresi arayüzde `https://localhost:7066` olarak kullanılır. Başka bir adresle çalıştırırken arayüz servislerini ve `Cors:AllowedOrigins` listesini güncelleyin. Aktivasyon bağlantıları için `Frontend:BaseUrl` değerini kullanılan arayüz adresiyle eşleştirin. E-posta işlemleri için `SmtpSettings` değerlerini yerel dosyada veya ortam değişkenlerinde yapılandırın.
+API adresi `Obs_Frontend/obs_frontend.client/src/environments/environment.ts` dosyasında `https://localhost:7066/api` olarak tanımlıdır. Başka bir adresle çalıştırırken bu değeri ve `Cors:AllowedOrigins` listesini güncelleyin. Aktivasyon bağlantıları için `Frontend:BaseUrl` değerini kullanılan arayüz adresiyle eşleştirin. E-posta işlemleri için `SmtpSettings` değerlerini yerel dosyada veya ortam değişkenlerinde yapılandırın.
 
 Sunucuda `Jwt__Key`, `ConnectionStrings__DefaultConnection` ve `SmtpSettings__Password` gibi ortam değişkenleri kullanılabilir. Ortam değişkenleri yerel dosyadan önceliklidir. Migration işlemleri uygulama başlangıcında otomatik çalıştırılmaz.
 
