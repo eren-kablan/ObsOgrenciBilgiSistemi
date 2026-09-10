@@ -1,0 +1,42 @@
+/* Sınav sonuçları */
+.exam-result-list { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 1rem; }
+.exam-result-card { padding: 1.1rem; border: 1px solid #e2e8f0; border-radius: 14px; background: #fff; box-shadow: 0 3px 12px rgba(15,23,42,.05); }
+.exam-result-card header { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; padding-bottom: .8rem; border-bottom: 1px solid #e2e8f0; }
+.exam-result-card header > div { display: flex; flex-direction: column; gap: .25rem; }
+.exam-result-card header strong { color: #2563eb; font-size: .9rem; }
+.exam-result-card header small { color: #94a3b8; font-size: .7rem; }
+.letter-grade { color: #0891b2; font-size: 1.45rem; font-weight: 800; }
+.letter-grade.pending { color: #94a3b8; }
+.grade-average { display: flex; align-items: baseline; justify-content: space-between; margin-top: 1rem; color: #475569; }
+.grade-average strong { color: #0f172a; font-size: 1.15rem; }
+.grade-progress,.akts-progress { height: 7px; margin: .55rem 0 1rem; overflow: hidden; border-radius: 999px; background: #e2e8f0; }
+.grade-progress span { display: block; height: 100%; border-radius: inherit; background: #22b8c7; transition: width .3s; }
+.exam-scores { display: grid; grid-template-columns: 1fr 1fr; gap: .75rem; }
+.exam-scores div { display: flex; align-items: center; justify-content: space-between; padding: .7rem; border-radius: 9px; background: #f8fafc; }
+.exam-scores span { color: #64748b; font-size: .75rem; }
+.exam-scores strong { color: #0f172a; }
+.exam-empty { grid-column: 1/-1; display: flex; flex-direction: column; align-items: center; gap: .5rem; padding: 3rem; color: #94a3b8; }
+.akts-limit { margin-bottom: 1rem; padding-bottom: 1rem; border-bottom: 1px solid #e2e8f0; }
+.akts-limit > div:first-child { display: flex; justify-content: space-between; color: #334155; font-weight: 700; }
+.akts-limit strong { color: #2563eb; font-size: 1.15rem; }
+.akts-limit small { color: #64748b; }
+.akts-progress { margin-bottom: .4rem; }
+.akts-progress span { display: block; height: 100%; max-width: 100%; border-radius: inherit; background: #2563eb; transition: width .25s; }
+@media(max-width:900px) { .exam-result-list { grid-template-columns: 1fr; } }
+.my-courses-panel { animation: fadeIn .25s ease; }
+.panel-subtitle { margin: .25rem 0 0; color: #8492a6; font-size: .75rem; }
+.my-courses-summary { display: flex; gap: .7rem; margin-bottom: 1rem; }
+.my-courses-summary span { padding: .55rem .8rem; border-radius: 9px; background: #eff6ff; color: #64748b; font-size: .72rem; }
+.my-courses-summary strong { margin-left: .35rem; color: #1d4ed8; font-size: .9rem; }
+.my-course-list { display: grid; gap: .7rem; }
+.my-course-card { display: grid; grid-template-columns: 90px minmax(0,1fr) 70px 90px; align-items: center; gap: 1rem; padding: .85rem 1rem; border: 1px solid #e3eaf3; border-radius: 12px; background: #fff; transition: .2s; }
+.my-course-card:hover { border-color: #bdd2f5; box-shadow: 0 6px 16px rgba(37,99,235,.07); transform: translateY(-1px); }
+.my-course-code { color: #2563eb; font-size: .82rem; font-weight: 800; }
+.my-course-info { display: flex; min-width: 0; flex-direction: column; gap: .2rem; }
+.my-course-info strong { overflow: hidden; color: #1e293b; font-size: .83rem; text-overflow: ellipsis; white-space: nowrap; }
+.my-course-info span { color: #94a3b8; font-size: .68rem; }
+.my-course-akts { display: flex; flex-direction: column; align-items: center; color: #334155; }
+.my-course-akts span { color: #94a3b8; font-size: .6rem; }
+.my-course-grade { justify-self: end; padding: .35rem .55rem; border-radius: 7px; background: #dcfce7; color: #15803d; font-size: .7rem; font-weight: 800; }
+.my-course-grade.pending { background: #f1f5f9; color: #64748b; }
+@media(max-width:650px){.my-course-card{grid-template-columns:70px 1fr 55px}.my-course-grade{display:none}}

@@ -1,0 +1,45 @@
+<div class="login-wrapper">
+  <div class="login-card">
+    <div class="login-header">
+      <img src="assets/duzce-logo.png" alt="Düzce Üniversitesi Logo" class="logo" />
+      <h2>Öğrenci Bilgi Sistemi</h2>
+      <p>Lütfen kullanıcı bilgilerinizi giriniz</p>
+    </div>
+
+    <form class="login-form" (ngSubmit)="login()">
+      <div class="form-group">
+        <label for="email">E-Posta Adresi</label>
+        <div class="input-wrapper">
+          <i class="pi pi-envelope input-icon"></i>
+          <input type="email"
+                 id="email"
+                 name="email"
+                 [(ngModel)]="email"
+                 placeholder="ornek@ogr.duzce.edu.tr"
+                 required />
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="password">Şifre</label>
+        <div class="input-wrapper">
+          <i class="pi pi-lock input-icon"></i>
+          <input [type]="showPassword ? 'text' : 'password'"
+                 id="password"
+                 name="password"
+                 [(ngModel)]="password"
+                 placeholder="••••••••"
+                 required />
+          <i class="pi toggle-icon"
+             [ngClass]="showPassword ? 'pi-eye-slash' : 'pi-eye'"
+             (click)="togglePasswordVisibility()"></i>
+        </div>
+      </div>
+
+      <button type="submit" class="btn-login">
+        <span>GİRİŞ YAP</span>
+        <i class="pi pi-arrow-right"></i>
+      </button>
+    </form>
+  </div>
+</div>

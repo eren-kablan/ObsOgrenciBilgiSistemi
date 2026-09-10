@@ -1,0 +1,548 @@
+<div class="dashboard-wrapper">
+  <!-- Sol Sidebar Navigation -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <img src="assets/duzce-logo.png" alt="Düzce Üniversitesi Logo" />
+    </div>
+
+    <nav class="sidebar-menu">
+      <a class="menu-item" [class.active]="aktifSekme === 'menu'" (click)="anaMenuyeDon()"><i class="pi pi-home"></i> Ana Sayfa</a>
+      <a class="menu-item" *ngIf="!isLecturer" (click)="dersKaydiEkraniniAc()"><i class="pi pi-book"></i> Ders Kaydı</a>
+      <a class="menu-item" *ngIf="!isLecturer" (click)="navigateTo('/notlarim')"><i class="pi pi-file"></i> Transkript</a>
+      <a class="menu-item" *ngIf="!isLecturer" (click)="openExamResults()"><i class="pi pi-chart-bar"></i> Sınav Sonuçları</a>
+      <a class="menu-item" *ngIf="!isLecturer" [class.active]="aktifSekme === 'attendanceSummary'" (click)="openStudentAttendance()"><i class="pi pi-calendar-clock"></i> Devamsızlık</a>
+      <a class="menu-item" *ngIf="isLecturer" (click)="navigateTo('/not-giris')"><i class="pi pi-pencil"></i> Not Girişi</a>
+      <a class="menu-item" *ngIf="isLecturer" (click)="openCourseRequests()"><i class="pi pi-send"></i> Ders Taleplerim</a>
+      <a class="menu-item" *ngIf="isLecturer" (click)="openRegistrationApprovals()"><i class="pi pi-verified"></i> Ders Kayıt Onayları</a>
+      <a class="menu-item" *ngIf="isLecturer" (click)="openAttendanceEntry()"><i class="pi pi-calendar-clock"></i> Devamsızlık Girişi</a>
+    </nav>
+
+    <div class="sidebar-official-footer">
+      <strong>Düzce Üniversitesi</strong>
+      <span>Öğrenci Bilgi Sistemi</span>
+      <small>© 2026</small>
+    </div>
+  </aside>
+
+  <!-- Sağ Ana İçerik Alanı -->
+  <main class="main-content" [class.attendance-view-active]="aktifSekme === 'attendanceSummary'">
+    <!-- Üst Kullanıcı & Karşılama Barı -->
+    <header class="top-header">
+      <div class="user-greeting">
+        <h1 *ngIf="isLecturer">Hoşgeldiniz</h1>
+        <h1 *ngIf="!isLecturer">Hoşgeldiniz, {{ userName }}</h1>
+        <span *ngIf="!isLecturer"><i class="pi pi-graduation-cap"></i> {{ userDepartment }} - {{ userGrade }}. Sınıf</span>
+        <span *ngIf="isLecturer"><i class="pi pi-briefcase"></i> {{ userFaculty }} - {{ userDepartment }}</span>
+      </div>
+
+      <div class="header-actions">
+        <!-- Bildirim / Duyuru Zil Butonu -->
+        <div class="notification-container">
+          <div class="notification-badge" (click)="toggleNotifications()">
+            <i class="pi pi-bell"></i>
+            <span class="badge">{{ notificationCount }}</span>
+          </div>
+
+          <!-- Duyurular Açılır Menüsü -->
+          <div class="notification-dropdown" *ngIf="showNotifications">
+            <div class="dropdown-header">
+              <h4>Bildirimler & Duyurular</h4>
+              <span class="close-dropdown" (click)="toggleNotifications()"><i class="pi pi-times"></i></span>
+            </div>
+            <div class="dropdown-body">
+              <div class="dropdown-item" *ngFor="let ann of announcements">
+                <button type="button" class="announcement-dismiss" (click)="dismissAnnouncement(ann, $event)" title="Bildirimi kaldır" aria-label="Bildirimi kaldır"><i class="pi pi-times"></i></button>
+                <div class="dropdown-icon-box {{ ann.iconClass }}">
+                  <i class="{{ ann.icon }}"></i>
+                </div>
+                <div class="dropdown-content">
+                  <span class="dropdown-date">{{ ann.date }}</span>
+                  <h5>{{ ann.title }}</h5>
+                  <p>{{ ann.description }}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="user-profile">
+          <div class="avatar">{{ userInitials }}</div>
+          <span class="email">{{ userEmail }}</span>
+        </div>
+        
+        <button class="logout-btn" (click)="logout()" title="Çıkış Yap">
+          <i class="pi pi-power-off"></i>
+        </button>
+      </div>
+    </header>
+
+    <!-- Üst 3'lü Özet Kartlar -->
+    <div class="top-cards-grid" *ngIf="aktifSekme !== 'attendanceSummary'">
+      <!-- Öğrenci Akademik Özet Kartı -->
+      <div class="stat-card academic-overview-card" *ngIf="!isLecturer">
+        <div class="academic-overview-head"><div><span>Akademik Durum</span><h2>Dönem & Akademik Bilgiler</h2></div><i class="pi pi-graduation-cap"></i></div>
+        <div class="academic-overview-values">
+          <div><span>Akademik Yıl</span><strong>{{ academicYear }}</strong></div>
+          <div><span>Dönem</span><strong>{{ academicTerm }}</strong></div>
+          <div><span>Sınıf</span><strong>{{ userGrade }}. Sınıf</strong></div>
+        </div>
+      </div>
+
+      <!-- Akademisyen Ünvan Kartı -->
+      <div class="stat-card blue-gradient-card" *ngIf="isLecturer">
+        <div class="stat-card-body lecturer-identity">
+          <span class="card-label">Akademik Kimlik</span>
+          <div class="lecturer-main-line">
+            <strong>{{ userUnvan || 'Öğretim Üyesi' }}</strong>
+            <span>{{ userName }}</span>
+          </div>
+          <div class="lecturer-department"><i class="pi pi-building"></i>{{ userDepartment }}</div>
+        </div>
+        <div class="card-icon-circle">
+          <i class="pi pi-id-card"></i>
+        </div>
+      </div>
+
+      <div class="stat-card white-card calendar-card">
+        <div class="cal-header">
+          <span>{{ calendarTitle }}</span>
+          <div class="cal-nav">
+            <i class="pi pi-chevron-left" (click)="prevMonth()" title="Önceki Ay"></i>
+            <i class="pi pi-chevron-right" (click)="nextMonth()" title="Sonraki Ay"></i>
+          </div>
+        </div>
+        <div class="cal-days-header">
+          <span>Pzt</span><span>Sal</span><span>Çar</span><span>Per</span><span>Cum</span><span>Cmt</span><span>Paz</span>
+        </div>
+        <div class="cal-days-grid">
+          <span *ngFor="let item of calendarDays" 
+                [ngClass]="{ 'muted': !item.isCurrentMonth, 'active-day': item.isToday }">
+            {{ item.day }}
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ================= ALT İÇERİK DEĞİŞTİRİCİ ================= -->
+    
+    <!-- DURUM 1: ANA MENÜ (Hızlı İşlemler) -->
+    <ng-container *ngIf="aktifSekme === 'menu'">
+      <div class="registration-status-banner" *ngIf="!isLecturer && registrationStatus" [ngClass]="registrationStatus.durum.toLowerCase()">
+        <i class="pi" [ngClass]="registrationStatus.durum === 'Onaylandi' ? 'pi-check-circle' : registrationStatus.durum === 'Reddedildi' ? 'pi-times-circle' : 'pi-clock'"></i>
+        <div><strong>Ders Kaydı: {{ registrationStatus.durum === 'Onaylandi' ? 'Onaylandı' : registrationStatus.durum === 'Reddedildi' ? 'Reddedildi' : 'Danışman Onayında' }}</strong><span *ngIf="registrationStatus.redNedeni">Gerekçe: {{ registrationStatus.redNedeni }}</span><span *ngIf="!registrationStatus.redNedeni">Danışman: {{ registrationStatus.danisman }}</span></div>
+      </div>
+      <div class="bottom-grid">
+        <div class="section-container">
+          <h3>Hızlı İşlemler</h3>
+          
+          <!-- Öğrenci Hızlı İşlemleri -->
+          <div class="quick-actions-row" *ngIf="!isLecturer">
+            <button class="action-btn" (click)="dersKaydiEkraniniAc()">
+              <i class="pi pi-user-plus"></i>
+              <span>Ders Kaydı</span>
+              <small>Dönem derslerini seç ve kaydını tamamla</small>
+            </button>
+            <button class="action-btn" (click)="navigateTo('/notlarim')">
+              <i class="pi pi-file"></i>
+              <span>Transkript</span>
+              <small>Akademik geçmişini ve GANO'nu görüntüle</small>
+            </button>
+            <button class="action-btn" (click)="openExamResults()">
+              <i class="pi pi-chart-bar"></i>
+              <span>Sınav Sonuçları</span>
+              <small>Vize, final ve harf notlarını incele</small>
+            </button>
+            <button class="action-btn" (click)="openMyCourses()">
+              <i class="pi pi-book"></i>
+              <span>Aldığım Dersler</span>
+              <small>Kayıtlı derslerini ve AKTS bilgilerini görüntüle</small>
+            </button>
+            <button class="action-btn" (click)="openStudentAttendance()">
+              <i class="pi pi-check-circle"></i>
+              <span>Devamsızlık</span>
+              <small>Ders bazlı devam durumunu takip et</small>
+            </button>
+            <button class="action-btn" (click)="toggleNotifications()">
+              <i class="pi pi-bell"></i>
+              <span>Bildirimlerim</span>
+              <small>Duyuru ve akademik bildirimlerini görüntüle</small>
+            </button>
+          </div>
+
+          <!-- Akademisyen Hızlı İşlemleri -->
+          <div class="quick-actions-row" *ngIf="isLecturer">
+            <button class="action-btn" (click)="openCourseRequests()">
+              <i class="pi pi-send"></i>
+              <span>Ders Talebi</span>
+              <small>Bölüm dersleri için görev talebi oluştur</small>
+            </button>
+            <button class="action-btn" (click)="navigateTo('/not-giris')">
+              <i class="pi pi-pencil"></i>
+              <span>Not Girişi</span>
+              <small>Öğrencilerin sınav notlarını kaydet</small>
+            </button>
+            <button class="action-btn" (click)="openRegistrationApprovals()">
+              <i class="pi pi-verified"></i>
+              <span>Ders Kayıt Onayları</span>
+              <small>Danışmanı olduğunuz öğrencilerin seçimlerini sonuçlandırın</small>
+            </button>
+            <button class="action-btn" (click)="openAttendanceEntry()">
+              <i class="pi pi-calendar-clock"></i>
+              <span>Devamsızlık Girişi</span>
+              <small>Ders ve hafta seçerek öğrenci yoklaması alın</small>
+            </button>
+            <button class="action-btn" (click)="openAnnouncementPublisher()">
+              <i class="pi pi-megaphone"></i>
+              <span>Duyuru Yayınla</span>
+              <small>Öğrencilerinizle güncel bilgi paylaş</small>
+            </button>
+          </div>
+        </div>
+
+        <div class="section-container grade-summary-panel">
+          <ng-container *ngIf="!isLecturer">
+            <div class="classic-grade-card">
+              <div><span>Not Ortalamanız</span><strong>{{ gano | number:'1.2-2' }} <small>/ 4.00</small></strong></div>
+              <div class="classic-grade-icon"><i class="pi pi-chart-line"></i></div>
+            </div>
+          </ng-container>
+          <ng-container *ngIf="isLecturer">
+          <h3>Dönem & Akademik Bilgiler</h3>
+          <div class="info-list">
+            <div class="info-row">
+              <span class="info-label">Akademik Yıl</span>
+              <span class="info-val">{{ academicYear }}</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">Dönem</span>
+              <span class="info-val">{{ academicTerm }}</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">Fakülte</span>
+              <span class="info-val">{{ userFaculty }}</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">Bölüm</span>
+              <span class="info-val">{{ userDepartment }}</span>
+            </div>
+            <div class="info-row" *ngIf="!isLecturer">
+              <span class="info-label">Sınıf</span>
+              <span class="info-val">{{ userGrade }}. Sınıf</span>
+            </div>
+            <div class="info-row" *ngIf="isLecturer">
+              <span class="info-label">Ünvan</span>
+              <span class="info-val">{{ userUnvan || 'Öğretim Üyesi' }}</span>
+            </div>
+          </div>
+          </ng-container>
+        </div>
+      </div>
+    </ng-container>
+
+    <ng-container *ngIf="aktifSekme === 'examResults'">
+      <div class="section-container exam-results-panel">
+        <div class="dk-header-row">
+          <h3>Sınav Sonuçları</h3>
+          <button class="dk-btn-back" (click)="anaMenuyeDon()"><i class="pi pi-arrow-left"></i> Geri Dön</button>
+        </div>
+        <div class="exam-result-list">
+          <article class="exam-result-card" *ngFor="let result of examResults">
+            <header>
+              <div><strong>{{ result.dersKodu }} - {{ result.dersAdi }}</strong><small>{{ result.akts }} AKTS</small></div>
+              <span class="letter-grade" [class.pending]="!result.harfNotu">{{ result.harfNotu || '--' }}</span>
+            </header>
+            <div class="grade-average">
+              <span>Ortalama</span>
+              <strong>{{ result.ortalama !== null ? (result.ortalama | number:'1.2-2') : '--' }}</strong>
+            </div>
+            <div class="grade-progress"><span [style.width.%]="result.ortalama || 0"></span></div>
+            <div class="exam-scores">
+              <div><span>Vize (%40)</span><strong>{{ result.vize !== null ? result.vize : '--' }}</strong></div>
+              <div><span>Final (%60)</span><strong>{{ result.final !== null ? result.final : '--' }}</strong></div>
+            </div>
+          </article>
+          <div class="exam-empty" *ngIf="examResults.length === 0"><i class="pi pi-inbox"></i><span>Henüz kayıtlı ders veya açıklanmış sınav sonucu bulunmuyor.</span></div>
+        </div>
+      </div>
+    </ng-container>
+
+    <ng-container *ngIf="aktifSekme === 'myCourses'">
+      <div class="section-container my-courses-panel">
+        <div class="dk-header-row">
+          <div><h3>Aldığım Dersler</h3><p class="panel-subtitle">Kayıtlı olduğunuz derslerin güncel akademik özeti</p></div>
+          <button class="dk-btn-back" (click)="anaMenuyeDon()"><i class="pi pi-arrow-left"></i> Geri Dön</button>
+        </div>
+        <div class="my-courses-summary"><span>Toplam Ders <strong>{{ examResults.length }}</strong></span><span>Toplam AKTS <strong>{{ registeredAkts }}</strong></span></div>
+        <div class="my-course-list">
+          <article class="my-course-card" *ngFor="let course of examResults">
+            <div class="my-course-code">{{ course.dersKodu }}</div>
+            <div class="my-course-info"><strong>{{ course.dersAdi }}</strong><span>{{ course.sinif || '-' }}. Sınıf · {{ course.donem || '-' }}</span></div>
+            <div class="my-course-akts"><strong>{{ course.akts }}</strong><span>AKTS</span></div>
+            <div class="my-course-grade" [class.pending]="!course.harfNotu">{{ course.harfNotu || 'Bekliyor' }}</div>
+          </article>
+          <div class="exam-empty" *ngIf="examResults.length === 0"><i class="pi pi-inbox"></i><span>Henüz kayıtlı olduğunuz bir ders bulunmuyor.</span></div>
+        </div>
+      </div>
+    </ng-container>
+
+    <ng-container *ngIf="aktifSekme === 'announcementPublish'">
+      <div class="section-container lecturer-announcement-panel">
+        <div class="dk-header-row">
+          <div><h3>Duyuru Yayınla</h3><p class="panel-subtitle">Duyurunuz öğrenci panelindeki Bildirimler ve Duyurular alanında yayınlanır.</p></div>
+          <button class="dk-btn-back" type="button" (click)="anaMenuyeDon()"><i class="pi pi-arrow-left"></i> Geri Dön</button>
+        </div>
+        <form class="lecturer-announcement-form" (ngSubmit)="publishLecturerAnnouncement()">
+          <div class="announcement-form-icon"><i class="pi pi-megaphone"></i></div>
+          <label>Duyuru Başlığı<input type="text" name="lecturerAnnouncementTitle" [(ngModel)]="lecturerAnnouncement.title" maxlength="150" required placeholder="Örn: Proje teslim tarihi güncellendi" /></label>
+          <label>Duyuru İçeriği<textarea name="lecturerAnnouncementDescription" [(ngModel)]="lecturerAnnouncement.description" maxlength="1500" rows="7" required placeholder="Öğrencilerinizle paylaşmak istediğiniz duyuruyu yazın..."></textarea></label>
+          <div class="lecturer-announcement-actions"><span><i class="pi pi-users"></i> Hedef kitle: Öğrenciler</span><button type="submit" [disabled]="publishingLecturerAnnouncement || !lecturerAnnouncement.title.trim() || !lecturerAnnouncement.description.trim()"><i class="pi" [ngClass]="publishingLecturerAnnouncement ? 'pi-spin pi-spinner' : 'pi-send'"></i>{{ publishingLecturerAnnouncement ? 'Yayınlanıyor...' : 'Duyuruyu Yayınla' }}</button></div>
+        </form>
+      </div>
+    </ng-container>
+
+    <ng-container *ngIf="aktifSekme === 'attendanceSummary'">
+      <div class="student-attendance-panel">
+        <header class="student-attendance-hero">
+          <div class="attendance-hero-icon"><i class="pi pi-calendar-clock"></i></div>
+          <div>
+            <span>AKADEMİK TAKİP</span>
+            <h2>Devamsızlık Bilgilerim</h2>
+            <p>Derslerinize ait haftalık katılım durumlarını tek ekrandan takip edin.</p>
+          </div>
+          <button type="button" (click)="anaMenuyeDon()"><i class="pi pi-arrow-left"></i> Ana Sayfaya Dön</button>
+        </header>
+
+        <div class="student-attendance-loading" *ngIf="loadingStudentAttendance && studentAttendanceCourses.length === 0">
+          <i class="pi pi-spin pi-spinner"></i><span>Devamsızlık bilgileriniz yükleniyor...</span>
+        </div>
+
+        <ng-container *ngIf="studentAttendanceCourses.length > 0">
+          <div class="student-attendance-workspace">
+            <aside class="student-attendance-courses">
+              <div class="attendance-list-heading"><div><strong>Derslerim</strong><span>{{ studentAttendanceCourses.length }} kayıtlı ders</span></div><i class="pi pi-book"></i></div>
+              <div class="attendance-course-list">
+                <button *ngFor="let course of studentAttendanceCourses"
+                        [class.active]="selectedStudentAttendanceCourse?.id === course.id"
+                        (click)="selectStudentAttendanceCourse(course)">
+                  <span class="student-course-code">{{ course.dersKodu }}</span>
+                  <span class="student-course-copy"><strong>{{ course.dersAdi }}</strong><small>{{ course.akts }} AKTS · {{ course.islenenHafta }}/12 hafta</small></span>
+                  <i class="pi pi-chevron-right"></i>
+                </button>
+              </div>
+            </aside>
+
+            <section class="student-attendance-detail" *ngIf="selectedStudentAttendanceCourse">
+              <div class="attendance-detail-heading">
+                <div><span>{{ selectedStudentAttendanceCourse.dersKodu }}</span><h3>{{ selectedStudentAttendanceCourse.dersAdi }}</h3></div>
+                <div class="attendance-detail-legend"><span><i class="legend-present"></i>Katıldı</span><span><i class="legend-absent"></i>Gelmedi</span><span><i class="legend-pending"></i>İşlenmedi</span></div>
+              </div>
+
+              <div class="student-attendance-summary">
+                <div><i class="pi pi-calendar"></i><span>İşlenen Hafta<strong>{{ studentProcessedWeekCount }}<small>/12</small></strong></span></div>
+                <div class="present"><i class="pi pi-check-circle"></i><span>Katıldığınız<strong>{{ studentPresentWeekCount }}</strong></span></div>
+                <div class="absent"><i class="pi pi-times-circle"></i><span>Gelmediğiniz<strong>{{ studentAbsentWeekCount }}</strong></span></div>
+              </div>
+
+              <div class="student-week-grid" *ngIf="!loadingStudentAttendance">
+                <article *ngFor="let week of studentAttendanceWeeks"
+                         [class.present]="week.durum === 'Katildi'"
+                         [class.absent]="week.durum === 'Gelmedi'"
+                         [class.pending]="week.durum === 'Islenmedi'">
+                  <div class="student-week-number"><strong>{{ week.hafta }}</strong><span>HAFTA</span></div>
+                  <div class="student-week-state">
+                    <i class="pi" [ngClass]="week.durum === 'Katildi' ? 'pi-check' : week.durum === 'Gelmedi' ? 'pi-times' : 'pi-minus'"></i>
+                    <span><strong>{{ week.durum === 'Katildi' ? 'Katıldı' : week.durum === 'Gelmedi' ? 'Gelmedi' : 'İşlenmedi' }}</strong><small>{{ week.tarih ? (week.tarih | date:'dd.MM.yyyy') : 'Yoklama bekleniyor' }}</small></span>
+                  </div>
+                </article>
+              </div>
+
+              <div class="student-attendance-loading compact" *ngIf="loadingStudentAttendance">
+                <i class="pi pi-spin pi-spinner"></i><span>Haftalar yükleniyor...</span>
+              </div>
+            </section>
+          </div>
+        </ng-container>
+
+        <div class="student-attendance-empty" *ngIf="!loadingStudentAttendance && studentAttendanceCourses.length === 0">
+          <i class="pi pi-calendar-times"></i><strong>Kayıtlı ders bulunamadı</strong><span>Onaylanan ders kayıtlarınızın devamsızlık bilgileri burada gösterilecek.</span>
+        </div>
+      </div>
+    </ng-container>
+
+    <ng-container *ngIf="aktifSekme === 'attendanceEntry'">
+      <div class="section-container attendance-entry-panel">
+        <div class="dk-header-row"><div><h3>Devamsızlık Girişi</h3><p class="panel-subtitle">Dersinizi ve haftayı seçin; yalnızca gelmeyen öğrencilere çarpı koyun.</p></div><button class="dk-btn-back" (click)="anaMenuyeDon()"><i class="pi pi-arrow-left"></i> Geri Dön</button></div>
+        <div class="attendance-course-picker">
+          <button *ngFor="let course of attendanceCourses" [class.active]="attendanceCourseId === course.id" (click)="selectAttendanceCourse(course.id)"><i class="pi pi-book"></i><span><strong>{{ course.dersKodu }}</strong>{{ course.dersAdi }}</span><small>{{ course.akts }} AKTS</small></button>
+          <div class="attendance-empty" *ngIf="attendanceCourses.length === 0"><i class="pi pi-info-circle"></i> Henüz size atanmış bir ders bulunmuyor.</div>
+        </div>
+        <ng-container *ngIf="attendanceCourseId">
+          <div class="week-selector"><button *ngFor="let week of attendanceWeeks" [class.active]="attendanceWeek === week" (click)="selectAttendanceWeek(week)"><span>{{ week }}</span><small>Hafta</small></button></div>
+          <div class="attendance-toolbar"><div><strong>{{ attendanceWeek }}. Hafta Yoklaması</strong><span>Yeşil tik: Katıldı · Kırmızı çarpı: Gelmedi</span></div><div><span class="present-count">{{ presentAttendanceCount }} katıldı</span><span class="absent-count">{{ absentAttendanceCount }} gelmedi</span></div></div>
+          <div class="attendance-student-list">
+            <button class="attendance-student" *ngFor="let student of attendanceStudents" [class.absent]="!student.katildi" (click)="toggleAttendance(student)">
+              <div class="attendance-avatar">{{ student.adi?.charAt(0) }}{{ student.soyadi?.charAt(0) }}</div><div><strong>{{ student.adi }} {{ student.soyadi }}</strong><span>{{ student.ogrenciNumarasi }}</span></div>
+              <div class="attendance-state"><i class="pi" [ngClass]="student.katildi ? 'pi-check' : 'pi-times'"></i><span>{{ student.katildi ? 'Katıldı' : 'Gelmedi' }}</span></div>
+            </button>
+            <div class="attendance-empty" *ngIf="attendanceStudents.length === 0"><i class="pi pi-users"></i> Bu dersi alan öğrenci bulunmuyor.</div>
+          </div>
+          <div class="attendance-save-row"><span>{{ attendanceStudents.length }} öğrenci · {{ absentAttendanceCount }} devamsız</span><button (click)="saveAttendanceWeek()" [disabled]="savingAttendance"><i class="pi" [ngClass]="savingAttendance ? 'pi-spin pi-spinner' : 'pi-save'"></i> {{ savingAttendance ? 'Kaydediliyor...' : attendanceWeek + '. Haftayı Kaydet' }}</button></div>
+        </ng-container>
+      </div>
+    </ng-container>
+
+    <ng-container *ngIf="aktifSekme === 'registrationApprovals'">
+      <div class="section-container registration-approval-panel">
+        <div class="dk-header-row"><div><h3>Ders Kayıt Onayları</h3><p class="panel-subtitle">Danışmanı olduğunuz öğrencilerin dönemlik ders seçimleri</p></div><button class="dk-btn-back" (click)="anaMenuyeDon()"><i class="pi pi-arrow-left"></i> Geri Dön</button></div>
+        <div class="registration-request-list">
+          <article class="registration-request-card" *ngFor="let request of registrationRequests">
+            <header><div class="student-request-avatar">{{ request.ogrenciAdi?.charAt(0) }}</div><div><h4>{{ request.ogrenciAdi }} — Ders Seçimi</h4><span>{{ request.ogrenciNumarasi }} · {{ request.sinif }}. Sınıf · {{ request.akademikYil }} / {{ request.donem === 1 ? 'Güz' : 'Bahar' }}</span></div><time>{{ request.talepTarihi | date:'dd.MM.yyyy HH:mm' }}</time></header>
+            <div class="selected-course-list"><div *ngFor="let course of request.dersler"><span><strong>{{ course.dersKodu }}</strong> {{ course.dersAdi }}</span><b>{{ course.akts }} AKTS</b></div></div>
+            <footer><span>Toplam {{ request.dersler.length }} ders seçildi</span><div><button class="reject-registration" (click)="decideRegistration(request,false)"><i class="pi pi-times"></i> Reddet ve Mesaj Gönder</button><button class="approve-registration" (click)="decideRegistration(request,true)"><i class="pi pi-check"></i> Ders Kaydını Onayla</button></div></footer>
+          </article>
+          <div class="exam-empty" *ngIf="registrationRequests.length === 0"><i class="pi pi-check-circle"></i><span>Onay bekleyen öğrenci ders kaydı bulunmuyor.</span></div>
+        </div>
+      </div>
+    </ng-container>
+
+    <ng-container *ngIf="aktifSekme === 'courseRequests'">
+      <div class="section-container dk-panel">
+        <div class="dk-header-row">
+          <h3>Ders Talebi <span class="dk-badge">Kendi Bölümünüz</span></h3>
+          <button class="dk-btn-back" (click)="anaMenuyeDon()"><i class="pi pi-arrow-left"></i> Geri Dön</button>
+        </div>
+
+        <h4 class="dk-list-title">Talep Edebileceğiniz Atanmamış Dersler</h4>
+        <div class="course-grade-list">
+          <section class="course-grade-card" *ngFor="let grade of courseGradeGroups">
+            <header class="course-grade-header">
+              <div class="course-grade-title">
+                <span class="course-grade-number">{{ grade }}</span>
+                <div><strong>{{ grade }}. Sınıf Dersleri</strong><small>{{ requestCoursesByGrade(grade).length }} ders</small></div>
+              </div>
+            </header>
+            <div class="course-grade-body" *ngIf="requestCoursesByGrade(grade).length > 0; else noRequestCourses">
+              <table class="dk-table">
+                <thead><tr><th>Kod</th><th>Ders Adı</th><th>Dönem</th><th>AKTS</th><th>İşlem</th></tr></thead>
+                <tbody>
+                  <tr *ngFor="let course of requestCoursesByGrade(grade)">
+                    <td><strong>{{ course.dersKodu }}</strong></td><td>{{ course.adi }}</td>
+                    <td>{{ course.donem === 2 ? 'Bahar' : 'Güz' }}</td><td>{{ course.akts }}</td>
+                    <td><button class="dk-btn-add" (click)="requestCourse(course)"><i class="pi pi-send"></i> Talep Et</button></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <ng-template #noRequestCourses><div class="course-grade-empty">Bu sınıfa ait talep edilebilir ders bulunmuyor.</div></ng-template>
+          </section>
+        </div>
+
+        <h4 class="dk-list-title" style="margin-top:2rem">Talep Geçmişiniz</h4>
+        <div style="overflow-x:auto">
+          <table class="dk-table">
+            <thead><tr><th>Ders</th><th>Talep Tarihi</th><th>Durum</th></tr></thead>
+            <tbody>
+              <tr *ngFor="let request of myCourseRequests">
+                <td><strong>{{ request.dersKodu }}</strong> - {{ request.dersAdi }}</td>
+                <td>{{ request.talepTarihi | date:'dd.MM.yyyy HH:mm' }}</td>
+                <td><span class="dk-credit-badge">{{ request.durum }}</span></td>
+              </tr>
+              <tr *ngIf="myCourseRequests.length === 0"><td colspan="3" class="dk-empty-state">Henüz ders talebiniz yok.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </ng-container>
+
+    <!-- DURUM 2: DERS KAYIT EKRANI -->
+    <ng-container *ngIf="aktifSekme === 'dersKaydi'">
+      <div class="section-container dk-panel">
+        <div class="dk-header-row">
+          <h3>Ders Kayıt Ekranı <span class="dk-badge">{{ aktifDonem }}. Dönem Dersleri</span></h3>
+          <button class="dk-btn-back" (click)="anaMenuyeDon()">
+            <i class="pi pi-arrow-left"></i> Geri Dön
+          </button>
+        </div>
+        
+        <div class="dk-split-layout">
+          <!-- Sol Taraf: Alınabilecek Dersler -->
+          <div>
+            <h4 class="dk-list-title">Açılan Dersler</h4>
+            <div class="course-grade-list">
+              <section class="course-grade-card" *ngFor="let grade of courseGradeGroups">
+                <header class="course-grade-header">
+                  <div class="course-grade-title">
+                    <span class="course-grade-number">{{ grade }}</span>
+                    <div>
+                      <strong>{{ grade }}. Sınıf Dersleri</strong>
+                      <small>{{ coursesByGrade(grade).length }} ders</small>
+                    </div>
+                  </div>
+                  <span class="course-grade-term">{{ aktifDonem === 1 ? 'Güz' : 'Bahar' }}</span>
+                </header>
+
+                <div class="course-grade-body" *ngIf="coursesByGrade(grade).length > 0; else emptyGrade">
+                  <table class="dk-table">
+                    <thead><tr><th>Kod</th><th>Ders Adı</th><th>Dersi Veren</th><th>AKTS</th><th>İşlem</th></tr></thead>
+                    <tbody>
+                      <tr *ngFor="let ders of coursesByGrade(grade)">
+                        <td><strong>{{ ders.kod }}</strong></td>
+                        <td>{{ ders.ad }}</td>
+                        <td>{{ ders.akademisyenAdi || 'Atanmadı' }}</td>
+                        <td><span class="dk-credit-badge">{{ ders.akts }}</span></td>
+                        <td>
+                          <button class="dk-btn-add" [disabled]="!canSelectCourse(ders)" (click)="dersEkle(ders)">
+                            <i class="pi" [ngClass]="isCourseSelected(ders.id) ? 'pi-check' : 'pi-plus'"></i>
+                            {{ isCourseSelected(ders.id) ? 'Seçildi' : (canSelectCourse(ders) ? 'Ekle' : 'Sınırı Aşar') }}
+                          </button>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+                <ng-template #emptyGrade>
+                  <div class="course-grade-empty">Bu dönemde {{ grade }}. sınıfa ait açılmış ders bulunmuyor.</div>
+                </ng-template>
+              </section>
+            </div>
+          </div>
+
+          <!-- Sağ Taraf: Seçilen Dersler ve Onay -->
+          <div>
+            <h4 class="dk-list-title">Seçtiğiniz Dersler</h4>
+            <div class="dk-secilen-kutu">
+              <div class="dk-secilen-item" *ngFor="let secilen of secilenDersler">
+                <div>
+                  <strong>{{ secilen.kod }}</strong> - {{ secilen.ad }}
+                </div>
+                <button class="dk-btn-remove" (click)="dersCikar(secilen)">
+                  <i class="pi pi-trash"></i>
+                </button>
+              </div>
+              
+              <div *ngIf="secilenDersler.length === 0" class="dk-empty-state">
+                Henüz ders seçmediniz.
+              </div>
+            </div>
+
+            <div class="dk-summary-box">
+              <div class="akts-limit">
+                <div><span>Seçtiğiniz AKTS</span><strong>{{ totalPlannedAkts }}/{{ maxAkts }}</strong></div>
+                <div class="akts-progress"><span [style.width.%]="(totalPlannedAkts / maxAkts) * 100"></span></div>
+                <small *ngIf="registeredAkts > 0">Önceden kayıtlı: {{ registeredAkts }} AKTS</small>
+              </div>
+              <div class="dk-summary-item">
+                <span>Toplam Kredi:</span>
+                <strong>{{ toplamKredi }}</strong>
+              </div>
+              <button class="dk-btn-save-all" [disabled]="secilenDersler.length === 0" (click)="kaydiOnayla()">
+                <i class="pi pi-check"></i> Kaydı Kesinleştir
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </ng-container>
+
+  </main>
+</div>

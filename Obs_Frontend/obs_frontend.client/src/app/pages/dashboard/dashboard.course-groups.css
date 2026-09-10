@@ -1,0 +1,83 @@
+/* Sınıflara göre ders grupları */
+.course-grade-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.course-grade-card {
+  overflow: hidden;
+  border: 1px solid #dbe3ee;
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
+}
+
+.course-grade-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.8rem 1rem;
+  border-bottom: 1px solid #e2e8f0;
+  background: linear-gradient(90deg, #eff6ff, #f8fafc);
+}
+
+.course-grade-title {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.course-grade-title > div {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+}
+
+.course-grade-title strong {
+  color: #1e3a8a;
+  font-size: 0.9rem;
+}
+
+.course-grade-title small {
+  color: #64748b;
+  font-size: 0.7rem;
+}
+
+.course-grade-number {
+  display: grid;
+  width: 32px;
+  height: 32px;
+  place-items: center;
+  border-radius: 9px;
+  background: #2563eb;
+  color: #fff;
+  font-weight: 800;
+}
+
+.course-grade-term {
+  padding: 0.25rem 0.6rem;
+  border-radius: 999px;
+  background: #fff;
+  color: #475569;
+  font-size: 0.7rem;
+  font-weight: 700;
+}
+
+.course-grade-body {
+  overflow-x: auto;
+}
+
+.course-grade-empty {
+  padding: 1rem;
+  color: #94a3b8;
+  font-size: 0.8rem;
+  text-align: center;
+}
+
+.course-grade-card .dk-btn-add:disabled {
+  border-color: #bbf7d0;
+  background: #f0fdf4;
+  color: #16a34a;
+  cursor: default;
+}

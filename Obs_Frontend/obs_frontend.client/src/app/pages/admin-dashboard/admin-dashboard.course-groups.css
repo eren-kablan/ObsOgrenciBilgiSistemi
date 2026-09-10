@@ -1,0 +1,30 @@
+/* Ders grupları */
+.admin-course-groups { display: flex; flex-direction: column; gap: 1rem; }
+.admin-course-group { overflow: hidden; border: 1px solid #dbe3ee; border-radius: 12px; background: #fff; }
+.admin-course-group-header { display: flex; align-items: center; gap: .75rem; padding: .8rem 1rem; border-bottom: 1px solid #e2e8f0; background: linear-gradient(90deg,#eff6ff,#f8fafc); }
+.admin-course-group-header > div { display: flex; flex-direction: column; gap: .1rem; }
+.admin-course-group-header strong { color: #1e3a8a; font-size: .9rem; }
+.admin-course-group-header small { color: #64748b; font-size: .7rem; }
+.admin-grade-number { display: grid; width: 32px; height: 32px; place-items: center; border-radius: 9px; background: #2563eb; color: #fff; font-weight: 800; }
+.admin-course-empty { padding: 1rem; color: #94a3b8; font-size: .8rem; text-align: center; }
+.curriculum-import-card { position:relative; display:flex; align-items:center; justify-content:space-between; gap:1.5rem; overflow:hidden; margin-bottom:1.25rem; padding:1.3rem 1.4rem; border:1px solid #bfdbfe; border-radius:16px; background:linear-gradient(115deg,#f0f6ff 0%,#fff 64%); box-shadow:0 8px 24px rgba(30,64,175,.08); }
+.curriculum-import-card::before { position:absolute; inset:0 auto 0 0; width:4px; background:linear-gradient(#2563eb,#60a5fa); content:""; }
+.curriculum-import-info { display:flex; align-items:flex-start; min-width:0; gap:1rem; }
+.curriculum-import-icon { display:grid; place-items:center; flex:0 0 48px; width:48px; height:48px; margin-top:.1rem; border:1px solid rgba(255,255,255,.35); border-radius:13px; background:linear-gradient(145deg,#1d4ed8,#2563eb); color:#fff; font-size:1.12rem; box-shadow:0 7px 16px rgba(37,99,235,.22); }
+.curriculum-import-heading { display:flex; align-items:center; flex-wrap:wrap; gap:.55rem; margin-bottom:.25rem; }
+.curriculum-import-info h2 { margin:0; color:#172554; font-size:1rem; letter-spacing:-.01em; }
+.curriculum-import-info p { max-width:660px; margin:0; color:#64748b; font-size:.77rem; line-height:1.5; }
+.curriculum-source-status { display:inline-flex; align-items:center; gap:.25rem; padding:.22rem .45rem; border:1px solid #bbf7d0; border-radius:999px; background:#f0fdf4; color:#15803d; font-size:.62rem; font-weight:800; }
+.curriculum-source-status i { font-size:.66rem; }
+.curriculum-source-link { display:inline-flex; align-items:center; gap:.5rem; margin-top:.65rem; padding:.38rem .62rem; border:1px solid #dbeafe; border-radius:8px; background:rgba(255,255,255,.78); color:#1d4ed8; text-decoration:none; transition:.18s ease; }
+.curriculum-source-link:hover { border-color:#93c5fd; background:#fff; transform:translateY(-1px); }
+.curriculum-source-link > i { font-size:.72rem; }
+.curriculum-source-link span { display:flex; flex-direction:column; gap:.02rem; font-size:.68rem; font-weight:750; }
+.curriculum-source-link small { color:#94a3b8; font-size:.51rem; font-weight:800; letter-spacing:.08em; }
+.curriculum-import-button { display:inline-flex; align-items:center; justify-content:center; flex:0 0 auto; gap:.7rem; min-width:220px; padding:.78rem 1.05rem; border:0; border-radius:11px; background:linear-gradient(135deg,#2563eb,#1d4ed8); color:#fff; cursor:pointer; box-shadow:0 7px 16px rgba(29,78,216,.22); transition:.18s ease; }
+.curriculum-import-button > i { font-size:.9rem; }
+.curriculum-import-button span { display:flex; flex-direction:column; align-items:flex-start; gap:.08rem; font-size:.76rem; font-weight:800; }
+.curriculum-import-button small { color:#bfdbfe; font-size:.52rem; font-weight:800; letter-spacing:.08em; }
+.curriculum-import-button:hover:not(:disabled) { background:linear-gradient(135deg,#1d4ed8,#1e40af); box-shadow:0 9px 20px rgba(29,78,216,.28); transform:translateY(-1px); }
+.curriculum-import-button:disabled { opacity:.65; cursor:wait; }
+@media(max-width:760px) { .curriculum-import-card { align-items:stretch; flex-direction:column; } .curriculum-import-icon { display:none; } .curriculum-import-button { width:100%; } }

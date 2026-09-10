@@ -1,0 +1,37 @@
+<div class="attendance-page">
+  <header class="page-header">
+    <button class="back-button" (click)="goBack()"><i class="pi pi-arrow-left"></i> Ana Sayfa</button>
+    <div class="heading"><span>ÖĞRENCİ BİLGİ SİSTEMİ</span><h1>Devamsızlık Bilgilerim</h1><p>Dersinizi seçerek haftalık katılım durumunuzu inceleyin.</p></div>
+    <div class="header-icon"><i class="pi pi-calendar-clock"></i></div>
+  </header>
+
+  <main>
+    <section class="course-panel">
+      <div class="section-title"><div><h2>Aldığım Dersler</h2><span>{{ courses.length }} kayıtlı ders</span></div><small>Detay için derse tıklayın</small></div>
+      <div class="course-list" *ngIf="courses.length; else noCourses">
+        <button *ngFor="let course of courses" [class.active]="selectedCourse?.id === course.id" (click)="selectCourse(course)">
+          <div class="course-code">{{ course.dersKodu }}</div>
+          <div class="course-name"><strong>{{ course.dersAdi }}</strong><span>{{ course.akts }} AKTS</span></div>
+          <div class="course-stats"><span>{{ course.islenenHafta }}/12 işlendi</span><span class="absence" *ngIf="course.devamsizHafta">{{ course.devamsizHafta }} devamsız</span></div>
+          <i class="pi pi-chevron-right"></i>
+        </button>
+      </div>
+      <ng-template #noCourses><div class="empty-state"><i class="pi pi-book"></i><strong>Kayıtlı ders bulunamadı</strong><span>Danışmanınız tarafından onaylanan dersler burada görüntülenecek.</span></div></ng-template>
+    </section>
+
+    <section class="week-panel" *ngIf="selectedCourse; else selectHint">
+      <div class="selected-course-head">
+        <div><span>{{ selectedCourse.dersKodu }}</span><h2>{{ selectedCourse.dersAdi }}</h2></div>
+        <div class="legend"><span><i class="present-dot"></i>Katıldı</span><span><i class="absent-dot"></i>Gelmedi</span><span><i class="pending-dot"></i>İşlenmedi</span></div>
+      </div>
+      <div class="week-grid">
+        <article *ngFor="let week of weeks" [ngClass]="week.durum.toLowerCase()">
+          <div class="week-number"><span>{{ week.hafta }}</span><small>HAFTA</small></div>
+          <div class="week-status"><i class="pi" [ngClass]="week.durum === 'Katildi' ? 'pi-check' : week.durum === 'Gelmedi' ? 'pi-times' : 'pi-minus'"></i><strong>{{ week.durum === 'Katildi' ? 'Katıldı' : week.durum === 'Gelmedi' ? 'Gelmedi' : 'Henüz İşlenmedi' }}</strong><small *ngIf="week.tarih">{{ week.tarih | date:'dd.MM.yyyy' }}</small></div>
+        </article>
+      </div>
+      <div class="summary-row"><div><span>İşlenen Hafta</span><strong>{{ processedWeekCount }}/12</strong></div><div class="green"><span>Katıldığınız</span><strong>{{ presentWeekCount }}</strong></div><div class="red"><span>Gelmediğiniz</span><strong>{{ absentWeekCount }}</strong></div></div>
+    </section>
+    <ng-template #selectHint><section class="week-panel select-hint"><i class="pi pi-hand-pointer"></i><h2>Bir ders seçin</h2><p>Haftalık katılım durumunu görmek için soldaki derslerden birine tıklayın.</p></section></ng-template>
+  </main>
+</div>

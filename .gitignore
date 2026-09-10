@@ -1,0 +1,53 @@
+# Build and local tools
+**/bin/
+**/obj/
+**/node_modules/
+**/dist/
+**/.angular/
+**/coverage/
+.vs/
+.vscode/
+.idea/
+*.user
+*.suo
+*.log
+*.tmp
+.DS_Store
+
+# Credentials and databases
+**/appsettings.Local.json
+**/appsettings.*.Local.json
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.pfx
+*.p12
+*.mdf
+*.ldf
+*.bak
+*.db
+*.sqlite*
+
+# Personal reports, screenshots and presentation working files
+StajRaporuCalisma/
+SunumGorselleri/
+.codex-presentations/
+*.docx
+*.pptx
+*.pdf
+*.inspect.ndjson
+
+# Earlier prototypes and local maintenance outputs
+FrontendObs/
+ObsFrontend/
+obs-frontend/
+WpfApp1/
+CourseCleanup/
+CourseReset/
+CurriculumSetup/
+
+.local-build/
+.local-check/
+.local-db-backup/

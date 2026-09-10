@@ -1,0 +1,759 @@
+<div class="admin-layout">
+  <!-- SOL SIDEBAR -->
+  <aside class="sidebar">
+    <div class="brand">
+      <img src="assets/duzce-logo.png" alt="Düzce Üniversitesi Logo" class="brand-logo" />
+    </div>
+
+    <nav class="nav-menu">
+      <a class="nav-item" [ngClass]="{ 'active': activeView === 'dashboard' }" (click)="switchView('dashboard', $event)">
+        <div class="nav-item-content">
+          <i class="pi pi-home"></i>
+          <span>Ana Sayfa</span>
+        </div>
+      </a>
+
+      <div class="nav-section-title">YÖNETİM</div>
+
+      <!-- 1. ÖĞRENCİ YÖNETİMİ AKORDEON MENÜ -->
+      <div class="accordion-item">
+        <div class="nav-item accordion-header" (click)="toggleStudentMenu($event)">
+          <div class="nav-item-content">
+            <i class="pi pi-users"></i>
+            <span>Öğrenci Yönetimi</span>
+          </div>
+          <i class="pi" [ngClass]="isStudentMenuOpen ? 'pi-chevron-down' : 'pi-chevron-right'"></i>
+        </div>
+
+        <div class="sub-menu" *ngIf="isStudentMenuOpen">
+          <a class="sub-nav-item" [ngClass]="{ 'active': activeView === 'student-add' }" (click)="switchView('student-add', $event)">
+            <i class="pi pi-user-plus"></i> Öğrenci Kaydı
+          </a>
+          <a class="sub-nav-item" [ngClass]="{ 'active': activeView === 'student-delete' }" (click)="switchView('student-delete', $event)">
+            <i class="pi pi-user-minus"></i> Öğrenci Silme
+          </a>
+          <a class="sub-nav-item" [ngClass]="{ 'active': activeView === 'student-update' }" (click)="switchView('student-update', $event)">
+            <i class="pi pi-user-edit"></i> Öğrenci Güncelleme
+          </a>
+          <a class="sub-nav-item" [ngClass]="{ 'active': activeView === 'student-list' }" (click)="switchView('student-list', $event)">
+            <i class="pi pi-list"></i> Öğrenci Listeleme
+          </a>
+        </div>
+      </div>
+
+      <!-- 2. AKADEMİSYEN YÖNETİMİ AKORDEON MENÜ -->
+      <div class="accordion-item">
+        <div class="nav-item accordion-header" (click)="toggleLecturerMenu($event)">
+          <div class="nav-item-content">
+            <i class="pi pi-id-card"></i>
+            <span>Akademisyen Yönetimi</span>
+          </div>
+          <i class="pi" [ngClass]="isLecturerMenuOpen ? 'pi-chevron-down' : 'pi-chevron-right'"></i>
+        </div>
+
+        <div class="sub-menu" *ngIf="isLecturerMenuOpen">
+          <a class="sub-nav-item" [ngClass]="{ 'active': activeView === 'lecturer-add' }" (click)="switchView('lecturer-add', $event)">
+            <i class="pi pi-user-plus"></i> Akademisyen Kaydı
+          </a>
+          <a class="sub-nav-item" [ngClass]="{ 'active': activeView === 'lecturer-delete' }" (click)="switchView('lecturer-delete', $event)">
+            <i class="pi pi-user-minus"></i> Akademisyen Silme
+          </a>
+          <a class="sub-nav-item" [ngClass]="{ 'active': activeView === 'lecturer-update' }" (click)="switchView('lecturer-update', $event)">
+            <i class="pi pi-user-edit"></i> Akademisyen Güncelleme
+          </a>
+          <a class="sub-nav-item" [ngClass]="{ 'active': activeView === 'lecturer-list' }" (click)="switchView('lecturer-list', $event)">
+            <i class="pi pi-list"></i> Bölümlere Göre Listeleme
+          </a>
+        </div>
+      </div>
+
+      <a class="nav-item" [ngClass]="{ 'active': activeView === 'department-management' }" (click)="switchView('department-management', $event)">
+        <div class="nav-item-content">
+          <i class="pi pi-building"></i>
+          <span>Bölüm Yönetimi</span>
+        </div>
+      </a>
+
+      <a class="nav-item" [ngClass]="{ 'active': activeView === 'ders-atamalari' }" (click)="switchView('ders-atamalari', $event)">
+        <div class="nav-item-content">
+          <i class="pi pi-link"></i>
+          <span>Ders Talepleri</span>
+        </div>
+      </a>
+
+      <a class="nav-item" [ngClass]="{ 'active': activeView === 'danisman-atama' }" (click)="switchView('danisman-atama', $event)">
+        <div class="nav-item-content"><i class="pi pi-user-edit"></i><span>Danışman Hoca Ata</span></div>
+      </a>
+
+      <a class="nav-item" [ngClass]="{ 'active': activeView === 'ders-yonetimi' }" (click)="switchView('ders-yonetimi', $event)">
+        <div class="nav-item-content">
+          <i class="pi pi-book"></i>
+          <span>Ders & Müfredat</span>
+        </div>
+      </a>
+    </nav>
+
+    <div class="sidebar-user-card">
+      <div class="user-avatar">A</div>
+      <div class="user-details">
+        <span class="user-name">Admin Kullanıcı</span>
+        <span class="user-role">Sistem Yöneticisi</span>
+        <span class="online-status"><span class="status-dot"></span> Çevrimiçi</span>
+      </div>
+    </div>
+  </aside>
+
+  <!-- SAĞ İÇERİK ALANI -->
+  <main class="main-content">
+    <!-- TOP BAR -->
+    <header class="top-bar">
+      <div class="bar-title">
+        <div class="admin-heading">
+          <h1>OBS Admin Paneli</h1>
+          <p>Düzce Üniversitesi Yönetim Paneli</p>
+        </div>
+      </div>
+
+      <div class="bar-actions">
+        <div class="notification-container">
+          <button class="notification-icon" type="button" (click)="toggleNotifications()" aria-label="Bildirimleri aç">
+            <i class="pi pi-bell"></i>
+            <span class="badge" *ngIf="unreadNotificationCount > 0">{{ unreadNotificationCount }}</span>
+          </button>
+
+          <div class="notification-dropdown" *ngIf="showNotifications">
+            <div class="notification-dropdown-header">
+              <div>
+                <strong>Bildirimler</strong>
+                <span>{{ unreadNotificationCount }} okunmamış bildirim</span>
+              </div>
+              <button type="button" class="notification-close" (click)="toggleNotifications()" aria-label="Bildirimleri kapat">
+                <i class="pi pi-times"></i>
+              </button>
+            </div>
+
+            <div class="notification-list">
+              <div class="notification-state" *ngIf="loadingNotifications">
+                <i class="pi pi-spin pi-spinner"></i> Bildirimler yükleniyor...
+              </div>
+              <div class="notification-state" *ngIf="!loadingNotifications && notifications.length === 0">
+                <i class="pi pi-check-circle"></i> Yeni bildiriminiz bulunmuyor.
+              </div>
+              <button type="button" class="notification-item" [class.unread]="!item.okundu"
+                      *ngFor="let item of notifications" (click)="markNotificationAsRead(item)">
+                <span class="notification-item-icon"><i class="pi" [ngClass]="item.okundu ? 'pi-check' : 'pi-bell'"></i></span>
+                <span class="notification-copy">
+                  <strong>{{ item.baslik }}</strong>
+                  <span>{{ item.mesaj }}</span>
+                  <time>{{ item.olusturulmaTarihi | date:'dd.MM.yyyy HH:mm' }}</time>
+                </span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="admin-profile-container">
+          <div class="admin-profile" (click)="toggleAdminDropdown()">
+            <div class="avatar">A</div>
+            <div class="profile-info">
+              <span class="name">Admin Kullanıcı</span>
+              <span class="role">Sistem Yöneticisi</span>
+            </div>
+            <i class="pi pi-chevron-down text-muted-icon"></i>
+          </div>
+
+          <div class="admin-dropdown" *ngIf="showAdminDropdown">
+            <div class="dropdown-header">
+              <strong>Admin Kullanıcı</strong>
+              <span class="admin-email">admin&#64;duzce.edu.tr</span>
+            </div>
+            <hr class="dropdown-divider" />
+            <button class="dropdown-logout-btn" type="button" (click)="logout()">
+              <i class="pi pi-power-off"></i> Çıkış Yap
+            </button>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- DASHBOARD ANA SAYFA -->
+    <ng-container *ngIf="activeView === 'dashboard'">
+      <div class="stats-row">
+        <div class="stat-card">
+          <div class="stat-main">
+            <div class="stat-icon icon-blue"><i class="pi pi-users"></i></div>
+            <div class="stat-meta">
+              <span class="label">Toplam Öğrenci</span>
+              <h2 class="value">{{ stats.totalStudents }}</h2>
+              <span class="subtext text-success"><i class="pi pi-arrow-up"></i> Güncel veri</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-main">
+            <div class="stat-icon icon-purple"><i class="pi pi-building"></i></div>
+            <div class="stat-meta">
+              <span class="label">Toplam Bölüm</span>
+              <h2 class="value">{{ stats.totalDepartments }}</h2>
+              <span class="subtext text-muted">Değişiklik yok</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-main">
+            <div class="stat-icon icon-green"><i class="pi pi-bell"></i></div>
+            <div class="stat-meta">
+              <span class="label">Aktif Duyuru Sayısı</span>
+              <h2 class="value">{{ announcements.length }}</h2>
+              <span class="subtext text-success"><i class="pi pi-arrow-up"></i> 1 yeni duyuru</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="middle-grid">
+        <div class="card-box">
+          <div class="card-box-header">
+            <div class="header-icon blue-bg"><i class="pi pi-megaphone"></i></div>
+            <div>
+              <h3>Sistem Duyurusu Yayınla</h3>
+              <p>Buradan girdiğiniz duyurular doğrudan öğrenci paneline yansır.</p>
+            </div>
+          </div>
+
+          <form (ngSubmit)="publishAnnouncement()" class="form-layout">
+            <div class="field">
+              <label>Duyuru Başlığı</label>
+              <input type="text" [(ngModel)]="newAnnouncement.title" name="title" required placeholder="Örn: 2026 Güz Dönemi Sınav Takvimi" />
+            </div>
+            <div class="field">
+              <label>Duyuru İçeriği</label>
+              <textarea [(ngModel)]="newAnnouncement.description" name="description" rows="4" required placeholder="Duyuru detaylarını buraya giriniz..."></textarea>
+            </div>
+            <button type="submit" class="btn-primary-blue-full" [disabled]="loadingAnnouncement">
+              <i class="pi pi-send"></i> {{ loadingAnnouncement ? 'Yayınlanıyor...' : 'Duyuruyu Yayınla' }}
+            </button>
+          </form>
+        </div>
+
+        <div class="card-box">
+          <div class="calendar-top">
+            <div class="cal-title-group"><i class="pi pi-calendar cal-icon"></i> <h3>Takvim</h3></div>
+            <div class="cal-actions">
+              <button type="button" (click)="prevMonth()" class="btn-icon"><i class="pi pi-chevron-left"></i></button>
+              <button type="button" (click)="nextMonth()" class="btn-icon"><i class="pi pi-chevron-right"></i></button>
+              <button type="button" (click)="goToday()" class="btn-today">Bugün</button>
+            </div>
+          </div>
+
+          <h4 class="current-month-label">{{ calendarTitle }}</h4>
+          <div class="cal-weekdays"><span>Pzt</span><span>Sal</span><span>Çar</span><span>Per</span><span>Cum</span><span>Cmt</span><span>Paz</span></div>
+          <div class="cal-days-grid">
+            <span *ngFor="let item of calendarDays" [ngClass]="{ 'muted': !item.isCurrentMonth, 'active-day': item.isToday }">{{ item.day }}</span>
+          </div>
+          <div class="cal-footer-indicator"><span class="blue-dot"></span> Bugün, {{ todayDateFormatted }}</div>
+        </div>
+      </div>
+    </ng-container>
+
+    <ng-container *ngIf="activeView === 'danisman-atama'">
+      <section class="content-card advisor-assignment-panel">
+        <div class="card-header"><div><h2>Danışman Hoca Atama</h2><p>Her bölüm için ders kayıtlarını onaylayacak danışman akademisyeni belirleyin.</p></div></div>
+        <div class="advisor-grid">
+          <article class="advisor-card" *ngFor="let department of advisorDepartments">
+            <div class="advisor-card-head"><div class="advisor-department-icon"><i class="pi pi-building"></i></div><div><h3>{{ department.bolumAdi }}</h3><span>{{ department.akademisyenler.length }} akademisyen</span></div></div>
+            <div class="current-advisor"><span>Mevcut Danışman</span><strong>{{ department.danismanAdi || 'Henüz atanmadı' }}</strong></div>
+            <label>Danışman Akademisyen</label>
+            <select [(ngModel)]="department.danismanAkademisyenId">
+              <option [ngValue]="null">Akademisyen seçiniz</option>
+              <option *ngFor="let lecturer of department.akademisyenler" [ngValue]="lecturer.id">{{ lecturer.unvani }} {{ lecturer.adi }} {{ lecturer.soyadi }}</option>
+            </select>
+            <button class="btn-primary-submit" [disabled]="!department.danismanAkademisyenId" (click)="assignAdvisor(department)"><i class="pi pi-check"></i> Danışman Olarak Ata</button>
+          </article>
+        </div>
+      </section>
+    </ng-container>
+
+    <!-- AKADEMİSYEN DERS TALEPLERİ -->
+    <ng-container *ngIf="activeView === 'ders-atamalari'">
+      <div class="view-container">
+        <div class="card-box form-card-styled">
+          <div class="form-card-header">
+            <div class="header-icon blue-bg"><i class="pi pi-inbox"></i></div>
+            <div>
+              <h2>Bekleyen Ders Talepleri</h2>
+              <p>Akademisyenlerin kendi bölümlerindeki dersler için oluşturduğu talepleri sonuçlandırın.</p>
+            </div>
+          </div>
+          <div style="overflow-x:auto">
+            <table class="custom-table">
+              <thead><tr><th>AKADEMİSYEN</th><th>DERS</th><th>BÖLÜM</th><th>TALEP TARİHİ</th><th>İŞLEMLER</th></tr></thead>
+              <tbody>
+                <tr *ngFor="let request of pendingCourseRequests">
+                  <td><strong>{{ request.akademisyenAdi }}</strong><br><small>{{ request.akademisyenEmail }}</small></td>
+                  <td><strong>{{ request.dersKodu }}</strong> - {{ request.dersAdi }}</td>
+                  <td><span class="badge-dept">{{ request.bolumAdi }}</span></td>
+                  <td>{{ request.talepTarihi | date:'dd.MM.yyyy HH:mm' }}</td>
+                  <td>
+                    <button class="btn-tbl-edit" type="button" (click)="decideCourseRequest(request, true)" title="Onayla"><i class="pi pi-check"></i></button>
+                    <button class="btn-tbl-delete" type="button" (click)="decideCourseRequest(request, false)" title="Reddet"><i class="pi pi-times"></i></button>
+                  </td>
+                </tr>
+                <tr *ngIf="pendingCourseRequests.length === 0">
+                  <td colspan="5" style="text-align:center;color:#94a3b8;padding:2rem">Bekleyen ders talebi bulunmuyor.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </ng-container>
+
+    <!-- BÖLÜM YÖNETİMİ -->
+    <ng-container *ngIf="activeView === 'department-management'">
+      <div class="view-container department-management-grid">
+        <div class="card-box form-card-styled">
+          <div class="form-card-header">
+            <div class="header-icon blue-bg"><i class="pi pi-building"></i></div>
+            <div>
+              <h2>Yeni Bölüm Ekle</h2>
+              <p>Eklenen bölüm öğrenci, akademisyen ve ders formlarında otomatik olarak görünür.</p>
+            </div>
+          </div>
+
+          <form (ngSubmit)="createDepartment()" class="form-layout">
+            <div class="field">
+              <label>Bölüm Adı</label>
+              <input type="text" [(ngModel)]="newDepartmentName" name="departmentName" required maxlength="150" placeholder="Örn: İnşaat Mühendisliği" />
+            </div>
+            <button type="submit" class="btn-primary-submit" [disabled]="loadingDepartment || !newDepartmentName.trim()">
+              <i class="pi" [ngClass]="loadingDepartment ? 'pi-spin pi-spinner' : 'pi-plus'"></i>
+              {{ loadingDepartment ? 'Ekleniyor...' : 'Bölümü Ekle' }}
+            </button>
+          </form>
+        </div>
+
+        <div class="card-box">
+          <div class="card-box-header">
+            <div class="header-icon blue-bg"><i class="pi pi-list"></i></div>
+            <div><h2>Sistemdeki Bölümler</h2><p>Toplam {{ departments.length }} bölüm kayıtlı.</p></div>
+          </div>
+          <div class="department-list">
+            <div class="department-list-item" *ngFor="let department of departments">
+              <span class="department-list-icon"><i class="pi pi-building"></i></span>
+              <strong>{{ department.ad }}</strong>
+              <span class="badge-dept">ID: {{ department.id }}</span>
+            </div>
+            <div class="admin-course-empty" *ngIf="departments.length === 0">Henüz kayıtlı bölüm bulunmuyor.</div>
+          </div>
+        </div>
+      </div>
+    </ng-container>
+
+    <!-- DERS & MÜFREDAT YÖNETİMİ -->
+    <ng-container *ngIf="activeView === 'ders-yonetimi'">
+      <div class="view-container">
+        <div class="curriculum-import-card">
+          <div class="curriculum-import-info">
+            <span class="curriculum-import-icon"><i class="pi pi-building-columns"></i></span>
+            <div>
+              <div class="curriculum-import-heading">
+                <h2>Üniversite Müfredatını Güncelle</h2>
+                <span class="curriculum-source-status"><i class="pi pi-verified"></i> Resmî kaynak</span>
+              </div>
+              <p>Ders kodu, ders adı, kredi, AKTS ve dönem bilgileri Düzce Üniversitesi Eğitim Bilgi Sistemi üzerinden alınır.</p>
+              <a class="curriculum-source-link" href="https://ebs.duzce.edu.tr/tr-TR/Program/Index/2" target="_blank" rel="noopener noreferrer">
+                <i class="pi pi-external-link"></i>
+                <span><small>VERİ KAYNAĞI</small>Düzce Üniversitesi EBS — Lisans Programları</span>
+              </a>
+            </div>
+          </div>
+          <button type="button" class="curriculum-import-button" (click)="importCurricula()" [disabled]="loadingCurriculumImport">
+            <i class="pi" [ngClass]="loadingCurriculumImport ? 'pi-spin pi-spinner' : 'pi-download'"></i>
+            <span><small>{{ loadingCurriculumImport ? 'EBS BAĞLANTISI AÇIK' : 'MÜFREDAT AKTARIMI' }}</small>{{ loadingCurriculumImport ? 'Veriler Alınıyor...' : 'Tüm Bölümleri Güncelle' }}</span>
+          </button>
+        </div>
+
+        <div class="card-box form-card-styled" style="margin-bottom: 2rem;">
+          <div class="form-card-header">
+            <div class="header-icon blue-bg"><i class="pi pi-book"></i></div>
+            <div>
+              <h2>Yeni Ders Tanımlama</h2>
+              <p>Ders adı, bölüm, sınıf ve dönemi seçin; kod otomatik olarak (BM100, EEM100...) oluşturulacaktır.</p>
+            </div>
+          </div>
+
+          <form (ngSubmit)="createCourse()" class="form-layout grid-form">
+            <div class="field" style="grid-column: span 2;">
+              <label>Ders Adı</label>
+              <input type="text" [(ngModel)]="newCourse.adi" name="cAdi" required placeholder="Örn: Nesne Yönelimli Programlama" />
+            </div>
+
+            <div class="field">
+              <label>Bölüm</label>
+              <select [(ngModel)]="newCourse.bolumId" name="cBolumId" required>
+                <option *ngFor="let dep of departments" [ngValue]="dep.id">{{ dep.ad }}</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <label>Sınıf Seviyesi</label>
+              <select [(ngModel)]="newCourse.sinif" name="cSinif">
+                <option [ngValue]="1">1. Sınıf (100'lü kodlar)</option>
+                <option [ngValue]="2">2. Sınıf (200'lü kodlar)</option>
+                <option [ngValue]="3">3. Sınıf (300'lü kodlar)</option>
+                <option [ngValue]="4">4. Sınıf (400'lü kodlar)</option>
+              </select>
+            </div>
+
+            <!-- YENİ EKLENEN DÖNEM SEÇİMİ -->
+            <div class="field" style="grid-column: span 2;">
+              <label>Dönem Seçimi</label>
+              <select [(ngModel)]="newCourse.donem" name="cDonem" required>
+                <option [ngValue]="1">1. Dönem (Güz Dönemi)</option>
+                <option [ngValue]="2">2. Dönem (Bahar Dönemi)</option>
+              </select>
+            </div>
+
+            <div class="form-actions-row" style="grid-column: span 2;">
+              <button type="submit" class="btn-primary-submit">Otomatik Kodla Dersi Kaydet</button>
+            </div>
+          </form>
+        </div>
+
+        <!-- Mevcut Dersler Listesi -->
+        <div class="card-box">
+          <div class="card-box-header">
+            <div class="header-icon blue-bg"><i class="pi pi-list"></i></div>
+            <div><h2>Sistemdeki Tüm Dersler</h2></div>
+          </div>
+
+          <div class="filter-row" style="margin-bottom: 1.25rem; display: flex; align-items: center; gap: 0.75rem;">
+            <label style="font-weight: 700; font-size: 0.85rem; color: #475569;">Bölüm Filtresi:</label>
+            <select [(ngModel)]="selectedCourseDepartmentFilter" style="padding: 0.6rem 1rem; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.85rem;">
+              <option [ngValue]="null">Tüm Bölümler</option>
+              <option *ngFor="let dep of departments" [ngValue]="dep.id">{{ dep.ad }}</option>
+            </select>
+          </div>
+
+          <div class="admin-course-groups">
+            <section class="admin-course-group" *ngFor="let grade of courseGradeGroups">
+              <header class="admin-course-group-header">
+                <span class="admin-grade-number">{{ grade }}</span>
+                <div><strong>{{ grade }}. Sınıf Dersleri</strong><small>{{ coursesByGrade(grade).length }} ders</small></div>
+              </header>
+              <div style="overflow-x:auto" *ngIf="coursesByGrade(grade).length > 0; else noAdminCourses">
+                <table class="custom-table">
+                  <thead><tr><th>DERS KODU</th><th>DERS ADI</th><th>BÖLÜM</th><th>KREDİ</th><th>AKTS</th><th>DÖNEM</th><th>DERSİ VEREN</th><th>İŞLEM</th></tr></thead>
+                  <tbody>
+                    <tr *ngFor="let ders of coursesByGrade(grade)">
+                      <td><strong>{{ ders.dersKodu || ders.kod }}</strong></td><td>{{ ders.adi || ders.ad }}</td>
+                      <td><span class="badge-dept">{{ ders.bolumAdi || '-' }}</span></td>
+                      <td>{{ ders.kredi ?? '-' }}</td>
+                      <td>{{ ders.akts ?? '-' }}</td>
+                      <td><span class="badge-dept">{{ ders.donem === 2 ? 'Bahar' : 'Güz' }}</span></td>
+                      <td><span class="badge-dept">{{ ders.akademisyenAdi || 'Atanmadı' }}</span></td>
+                      <td><button type="button" class="btn-delete-course" (click)="dersSil(ders)" title="Dersi sil"><i class="pi pi-times"></i></button></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              <ng-template #noAdminCourses><div class="admin-course-empty">Bu sınıfa ait kayıtlı ders bulunmuyor.</div></ng-template>
+            </section>
+          </div>
+        </div>
+      </div>
+    </ng-container>
+
+    <!-- ÖĞRENCİ EKRANLARI -->
+    <ng-container *ngIf="activeView === 'student-add'">
+      <div class="view-container">
+        <div class="card-box form-card-styled">
+          <div class="form-card-header">
+            <div class="header-icon blue-bg"><i class="pi pi-user-plus"></i></div>
+            <div><h2>Öğrenci Kaydı</h2><p>Yeni öğrenci bilgilerini ekleyin.</p></div>
+          </div>
+          <form (ngSubmit)="createStudent()" class="form-layout grid-form">
+            <div class="form-row">
+              <div class="field"><label>Ad</label><input type="text" [(ngModel)]="student.adi" name="adi" required /></div>
+              <div class="field"><label>Soyad</label><input type="text" [(ngModel)]="student.soyadi" name="soyadi" required /></div>
+            </div>
+            <div class="form-row">
+              <div class="field">
+                <label>Öğrenci No</label>
+                <input type="text" value="Sistem tarafından otomatik oluşturulacak" disabled />
+              </div>
+              <div class="field"><label>Sınıf</label>
+                <select [(ngModel)]="student.sinif" name="sinif"><option [ngValue]="1">1. Sınıf</option><option [ngValue]="2">2. Sınıf</option><option [ngValue]="3">3. Sınıf</option><option [ngValue]="4">4. Sınıf</option></select>
+              </div>
+            </div>
+            <div class="field">
+              <label>Bölüm</label>
+              <select [(ngModel)]="student.bolumId" name="bolumId" required>
+                <option *ngFor="let department of departments" [ngValue]="department.id">
+                  {{ department.ad }}
+                </option>
+              </select>
+            </div>
+            <div class="form-actions-row"><button type="submit" class="btn-primary-submit">Kaydet</button></div>
+          </form>
+        </div>
+      </div>
+    </ng-container>
+
+    <ng-container *ngIf="activeView === 'student-delete'">
+      <div class="view-container">
+        <div class="card-box form-card-styled">
+          <div class="form-card-header">
+            <div class="header-icon red-bg"><i class="pi pi-user-minus"></i></div>
+            <div><h2>Öğrenci Silme</h2><p>Silinecek öğrenci ID girin.</p></div>
+          </div>
+          <div class="form-layout">
+            <div class="field"><label>Öğrenci ID</label><input type="number" [(ngModel)]="targetStudentId" /></div>
+            <button type="button" class="btn-danger-submit" (click)="deleteStudent()">Öğrenciyi Sil</button>
+          </div>
+        </div>
+      </div>
+    </ng-container>
+
+    <ng-container *ngIf="activeView === 'student-update'">
+      <div class="view-container">
+        <div class="card-box form-card-styled">
+          <div class="form-card-header">
+            <div class="header-icon orange-bg"><i class="pi pi-user-edit"></i></div>
+            <div><h2>Öğrenci Güncelleme</h2><p>Öğrenci bilgilerini düzenleyin.</p></div>
+          </div>
+          <div class="search-box-row" style="margin-bottom: 1.5rem; display: flex; gap: 0.5rem;">
+            <input type="number" [(ngModel)]="targetStudentId" placeholder="Öğrenci ID..." style="flex-grow: 1; padding: 0.6rem; border: 1px solid #cbd5e1; border-radius: 8px;" />
+            <button type="button" class="btn-primary-submit" (click)="fetchStudentForUpdate()">Öğrenciyi Getir</button>
+          </div>
+          <form *ngIf="editStudent" (ngSubmit)="updateStudent()" class="form-layout grid-form">
+            <div class="form-row">
+              <div class="field"><label>Ad</label><input type="text" [(ngModel)]="editStudent.adi" name="eAdi" /></div>
+              <div class="field"><label>Soyad</label><input type="text" [(ngModel)]="editStudent.soyadi" name="eSoyadi" /></div>
+            </div>
+            <button type="submit" class="btn-primary-submit">Kaydet</button>
+          </form>
+        </div>
+      </div>
+    </ng-container>
+
+    <ng-container *ngIf="activeView === 'student-list'">
+      <div class="view-container">
+        <div class="card-box">
+          <div class="card-box-header"><div class="header-icon blue-bg"><i class="pi pi-list"></i></div><div><h2>Öğrenci Listesi</h2></div></div>
+
+          <div class="filter-row" style="margin-bottom: 1.25rem; display: flex; align-items: center; gap: 0.75rem;">
+            <label style="font-weight: 700; font-size: 0.85rem; color: #475569;">Bölüm Filtresi:</label>
+            <select [(ngModel)]="selectedStudentDepartmentFilter" (change)="onStudentDepartmentFilterChange()" style="padding: 0.6rem 1rem; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.85rem;">
+              <option [ngValue]="null">Tüm Bölümler</option>
+              <option *ngFor="let dep of departments" [ngValue]="dep.id">{{ dep.ad }}</option>
+            </select>
+          </div>
+
+          <table class="custom-table">
+            <thead><tr><th>ID</th><th>AD SOYAD</th><th>NO</th><th>SINIF</th><th>BÖLÜM</th></tr></thead>
+            <tbody>
+              <tr *ngFor="let std of studentList">
+                <td>{{ std.id }}</td>
+                <td>{{ std.adi }} {{ std.soyadi }}</td>
+                <td>{{ std.ogrenciNumarasi }}</td>
+                <td>{{ std.sinif }}. Sınıf</td>
+                <td>{{ std.bolumAdi }}</td>
+              </tr>
+              <tr *ngIf="studentList.length === 0">
+                <td colspan="5" style="text-align: center; color: #94a3b8; padding: 1.5rem;">Seçili bölüme ait öğrenci bulunamadı.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </ng-container>
+
+    <!-- AKADEMİSYEN EKRANLARI -->
+    <ng-container *ngIf="activeView === 'lecturer-add'">
+      <div class="view-container">
+        <div class="card-box form-card-styled">
+          <div class="form-card-header">
+            <div class="header-icon blue-bg"><i class="pi pi-user-plus"></i></div>
+            <div>
+              <h2>Akademisyen Kaydı</h2>
+              <p>Yeni akademisyen ve unvan bilgilerini sisteme tanımlayın.</p>
+            </div>
+          </div>
+
+          <form (ngSubmit)="createLecturer()" class="form-layout grid-form">
+            <div class="field">
+              <label>Ünvan</label>
+              <select [(ngModel)]="lecturer.unvani" name="unvani" required>
+                <option value="Prof. Dr.">Prof. Dr.</option>
+                <option value="Doç. Dr.">Doç. Dr.</option>
+                <option value="Dr. Öğr. Üyesi">Dr. Öğr. Üyesi</option>
+                <option value="Öğr. Gör.">Öğr. Gör.</option>
+                <option value="Arş. Gör.">Arş. Gör.</option>
+              </select>
+            </div>
+
+            <div class="form-row">
+              <div class="field">
+                <label>Ad</label>
+                <input type="text" [(ngModel)]="lecturer.adi" (ngModelChange)="generateLecturerEmail()" name="lAdi" required placeholder="Akademisyenin adı" />
+              </div>
+              <div class="field">
+                <label>Soyad</label>
+                <input type="text" [(ngModel)]="lecturer.soyadi" (ngModelChange)="generateLecturerEmail()" name="lSoyadi" required placeholder="Akademisyenin soyadı" />
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="field">
+                <label>E-Posta (Otomatik Oluşturulur)</label>
+                <input type="email" [(ngModel)]="lecturer.email" name="lEmail" [disabled]="true" readonly placeholder="Ad ve soyada göre oluşturulur" style="background-color: #f1f5f9; cursor: not-allowed;" />
+              </div>
+              <div class="field">
+                <label>Bölüm ID</label>
+                <input type="number" [(ngModel)]="lecturer.bolumId" name="lBolumId" required placeholder="Örn: 1" />
+              </div>
+            </div>
+
+            <div class="form-actions-row">
+              <button type="button" class="btn-secondary-cancel" (click)="switchView('dashboard', $event)">Vazgeç</button>
+              <button type="submit" class="btn-primary-submit" [disabled]="loadingLecturer">Akademisyeni Kaydet</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </ng-container>
+
+    <ng-container *ngIf="activeView === 'lecturer-delete'">
+      <div class="view-container">
+        <div class="card-box form-card-styled">
+          <div class="form-card-header">
+            <div class="header-icon red-bg"><i class="pi pi-user-minus"></i></div>
+            <div>
+              <h2>Akademisyen Silme</h2>
+              <p>Sistemden silinecek akademisyen ID'sini girin ve onaylayın.</p>
+            </div>
+          </div>
+
+          <div class="form-layout">
+            <div class="field">
+              <label>Silinecek Akademisyen ID</label>
+              <input type="number" [(ngModel)]="targetLecturerId" placeholder="Örn: 3" />
+            </div>
+
+            <button type="button" class="btn-danger-submit" (click)="deleteLecturer()" [disabled]="!targetLecturerId">
+              <i class="pi pi-trash"></i> Akademisyeni Sil
+            </button>
+          </div>
+        </div>
+      </div>
+    </ng-container>
+
+    <ng-container *ngIf="activeView === 'lecturer-update'">
+      <div class="view-container">
+        <div class="card-box form-card-styled">
+          <div class="form-card-header">
+            <div class="header-icon orange-bg"><i class="pi pi-user-edit"></i></div>
+            <div>
+              <h2>Akademisyen Bilgileri & Ünvan Güncelleme</h2>
+              <p>Akademisyenin ünvanını, adını veya bölümünü güncelleyin.</p>
+            </div>
+          </div>
+
+          <div class="search-box-row" style="margin-bottom: 1.5rem; display: flex; gap: 0.5rem;">
+            <input type="number" [(ngModel)]="targetLecturerId" placeholder="Akademisyen ID giriniz..." style="flex-grow: 1; padding: 0.6rem; border: 1px solid #cbd5e1; border-radius: 8px;" />
+            <button type="button" class="btn-primary-submit" (click)="fetchLecturerForUpdate()">Akademisyeni Getir</button>
+          </div>
+
+          <form *ngIf="editLecturer" (ngSubmit)="updateLecturer()" class="form-layout grid-form">
+            <div class="field">
+              <label>Ünvan</label>
+              <select [(ngModel)]="editLecturer.unvani" name="editUnvani" required>
+                <option value="Prof. Dr.">Prof. Dr.</option>
+                <option value="Doç. Dr.">Doç. Dr.</option>
+                <option value="Dr. Öğr. Üyesi">Dr. Öğr. Üyesi</option>
+                <option value="Öğr. Gör.">Öğr. Gör.</option>
+                <option value="Arş. Gör.">Arş. Gör.</option>
+              </select>
+            </div>
+
+            <div class="form-row">
+              <div class="field"><label>Ad</label><input type="text" [(ngModel)]="editLecturer.adi" name="elAdi" required /></div>
+              <div class="field"><label>Soyad</label><input type="text" [(ngModel)]="editLecturer.soyadi" name="elSoyadi" required /></div>
+            </div>
+
+            <div class="form-row">
+              <div class="field"><label>E-Posta</label><input type="email" [(ngModel)]="editLecturer.email" name="elEmail" required /></div>
+              <div class="field"><label>Bölüm ID</label><input type="number" [(ngModel)]="editLecturer.bolumId" name="elBolumId" required /></div>
+            </div>
+
+            <div class="form-actions-row">
+              <button type="submit" class="btn-primary-submit">Değişiklikleri Kaydet</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </ng-container>
+
+    <ng-container *ngIf="activeView === 'lecturer-list'">
+      <div class="view-container">
+        <div class="card-box">
+          <div class="card-box-header">
+            <div class="header-icon blue-bg"><i class="pi pi-list"></i></div>
+            <div>
+              <h2>Bölümlere Göre Akademisyen Listesi</h2>
+              <p>Filtrelemek istediğiniz bölümü seçin.</p>
+            </div>
+          </div>
+
+          <div class="filter-row" style="margin-bottom: 1.25rem; display: flex; align-items: center; gap: 0.75rem;">
+            <label style="font-weight: 700; font-size: 0.85rem; color: #475569;">Bölüm Filtresi:</label>
+            <select [(ngModel)]="selectedDepartmentFilter" (change)="onDepartmentFilterChange()" style="padding: 0.6rem 1rem; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.85rem;">
+              <option [ngValue]="null">Tüm Bölümler</option>
+              <option *ngFor="let dep of departments" [ngValue]="dep.id">{{ dep.ad }}</option>
+            </select>
+          </div>
+
+          <div class="table-wrapper" style="overflow-x: auto;">
+            <table class="custom-table">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>ÜNVAN AD SOYAD</th>
+                  <th>E-POSTA</th>
+                  <th>BÖLÜM ID</th>
+                  <th>İŞLEMLER</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let lec of lecturerList">
+                  <td>{{ lec.id }}</td>
+                  <td><strong>{{ lec.unvani }} {{ lec.adi }} {{ lec.soyadi }}</strong></td>
+                  <td>{{ lec.email }}</td>
+                  <td><span class="badge-dept">Bölüm #{{ lec.bolumId }}</span></td>
+                  <td>
+                    <button class="btn-tbl-edit" (click)="quickEditLecturer(lec)"><i class="pi pi-pencil"></i></button>
+                    <button class="btn-tbl-delete" (click)="quickDeleteLecturer(lec.id!)"><i class="pi pi-trash"></i></button>
+                  </td>
+                </tr>
+                <tr *ngIf="lecturerList.length === 0">
+                  <td colspan="5" style="text-align: center; color: #94a3b8; padding: 1.5rem;">Seçili kritere uygun akademisyen bulunamadı.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </ng-container>
+
+    <!-- FOOTER -->
+    <footer class="admin-footer">
+      <span>© 2026 Düzce Üniversitesi - OBS Admin Paneli. Tüm hakları saklıdır.</span>
+      <span>v1.0.0</span>
+    </footer>
+  </main>
+</div>
+

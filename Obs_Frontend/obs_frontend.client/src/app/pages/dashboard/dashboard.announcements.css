@@ -1,0 +1,15 @@
+.dropdown-item { position: relative; padding-right: 2.2rem; }
+.announcement-dismiss { display: grid; position: absolute; top: .45rem; right: .45rem; width: 24px; height: 24px; padding: 0; place-items: center; border: 0; border-radius: 7px; background: transparent; color: #94a3b8; cursor: pointer; }
+.announcement-dismiss:hover { background: #fee2e2; color: #dc2626; }
+.announcement-dismiss i { font-size: .65rem; }
+.lecturer-announcement-panel { max-width: 900px; margin-right: auto; margin-left: auto; }
+.lecturer-announcement-form { position: relative; display: flex; flex-direction: column; gap: 1rem; margin-top: 1.2rem; padding: 1.35rem; border: 1px solid #e2e8f0; border-radius: 14px; background: linear-gradient(145deg,#fff,#f8fbff); }
+.announcement-form-icon { display: grid; width: 50px; height: 50px; place-items: center; border-radius: 14px; background: #e8f1ff; color: #2563eb; font-size: 1.2rem; }
+.lecturer-announcement-form label { display: flex; flex-direction: column; gap: .4rem; color: #334155; font-size: .72rem; font-weight: 700; }
+.lecturer-announcement-form input,.lecturer-announcement-form textarea { width: 100%; padding: .75rem .85rem; border: 1px solid #cbd5e1; border-radius: 9px; outline: none; background: #fff; color: #172033; font: inherit; font-weight: 400; box-sizing: border-box; resize: vertical; }
+.lecturer-announcement-form input:focus,.lecturer-announcement-form textarea:focus { border-color: #3b82f6; box-shadow: 0 0 0 3px #dbeafe; }
+.lecturer-announcement-actions { display: flex; align-items: center; justify-content: space-between; padding-top: .25rem; }
+.lecturer-announcement-actions > span { display: flex; align-items: center; gap: .4rem; color: #64748b; font-size: .66rem; }
+.lecturer-announcement-actions button { display: flex; align-items: center; gap: .45rem; padding: .7rem 1rem; border: 0; border-radius: 9px; background: #2563eb; color: #fff; font-size: .72rem; font-weight: 700; cursor: pointer; }
+.lecturer-announcement-actions button:disabled { cursor: not-allowed; opacity: .55; }
+@media(max-width:600px){.lecturer-announcement-actions{align-items:stretch;flex-direction:column;gap:.8rem}.lecturer-announcement-actions button{justify-content:center}}

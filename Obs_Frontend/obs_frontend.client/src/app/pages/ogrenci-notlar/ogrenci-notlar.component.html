@@ -1,0 +1,43 @@
+<div class="transcript-page">
+  <div class="page-actions">
+    <button class="back-button" (click)="goBack()"><i class="pi pi-arrow-left"></i> Panele Dön</button>
+    <button class="print-button" (click)="printTranscript()"><i class="pi pi-print"></i> Yazdır / PDF Kaydet</button>
+  </div>
+  <main class="transcript-document" *ngIf="!loading; else loadingTemplate">
+    <header class="document-header">
+      <img src="assets/duzce-logo.png" alt="Düzce Üniversitesi logosu" />
+      <div class="university-title"><span>T.C.</span><h1>DÜZCE ÜNİVERSİTESİ</h1><p>ÖĞRENCİ İŞLERİ DAİRE BAŞKANLIĞI</p><h2>TRANSKRİPT BELGESİ</h2></div>
+      <div class="document-meta"><span>Belge Tarihi</span><strong>{{ documentDate | date:'dd.MM.yyyy' }}</strong><small>OBS tarafından oluşturulmuştur</small></div>
+    </header>
+    <section class="student-information">
+      <h3>ÖĞRENCİ KİMLİK VE PROGRAM BİLGİLERİ</h3>
+      <div class="information-grid">
+        <div><span>Adı Soyadı</span><strong>{{ fullName || '-' }}</strong></div><div><span>Öğrenci Numarası</span><strong>{{ profile?.ogrenciNumarasi || '-' }}</strong></div>
+        <div><span>Fakülte / Birim</span><strong>Mühendislik Fakültesi</strong></div><div><span>Bölümü / Programı</span><strong>{{ departmentName }}</strong></div>
+        <div><span>Bulunduğu Sınıf</span><strong>{{ profile?.sinif ? profile?.sinif + '. Sınıf' : '-' }}</strong></div><div><span>Akademik Yıl</span><strong>{{ academicYear }}</strong></div>
+      </div>
+    </section>
+    <section class="course-section">
+      <h3>AKADEMİK BAŞARI BİLGİLERİ</h3>
+      <ng-container *ngIf="gradeGroups.length > 0; else noCourses">
+        <article class="grade-section" *ngFor="let group of gradeGroups">
+          <div class="grade-heading"><strong>{{ group.sinif }}. SINIF DERSLERİ</strong><span>Sınıf AKTS Toplamı: {{ group.totalAkts }}</span></div>
+          <table><thead><tr><th>Ders Kodu</th><th>Ders Adı</th><th>Dönem</th><th>AKTS</th><th>Harf Notu</th></tr></thead>
+            <tbody><tr *ngFor="let course of group.courses"><td><strong>{{ course.dersKodu }}</strong></td><td>{{ course.dersAdi }}</td><td>{{ course.donem }}</td><td>{{ course.akts }}</td><td class="letter-grade">{{ course.harfNotu || '-' }}</td></tr></tbody>
+          </table>
+        </article>
+      </ng-container>
+      <ng-template #noCourses><div class="empty-state">Transkriptte gösterilecek kayıtlı ders bulunmuyor.</div></ng-template>
+    </section>
+    <section class="official-summary">
+      <div><span>TOPLAM ALINAN AKTS</span><strong>{{ totalAkts }}</strong></div><div><span>NOTU HESAPLANAN AKTS</span><strong>{{ calculatedAkts }}</strong></div>
+      <div class="gano-box"><span>GENEL AKADEMİK NOT ORTALAMASI (GANO)</span><strong>{{ gano | number:'1.2-2' }} / 4.00</strong></div>
+    </section>
+    <footer class="document-footer">
+      <div class="verification"><div class="verification-code" aria-label="Belge doğrulama kodu"></div><div><strong>BELGE DOĞRULAMA</strong><span>{{ profile?.ogrenciNumarasi || 'OBS' }}-{{ documentDate | date:'yyyyMMdd' }}</span></div></div>
+      <p>Bu belge, Düzce Üniversitesi Öğrenci Bilgi Sistemi'ndeki güncel akademik kayıtlar esas alınarak düzenlenmiştir.</p>
+      <div class="approval"><div class="official-seal"><span>DÜ</span></div><div><span class="signature">e-İmzalıdır</span><strong>ONAY</strong><b>Öğrenci İşleri Daire Başkanlığı</b><small>Elektronik ortamda oluşturulmuştur.</small></div></div>
+    </footer>
+  </main>
+  <ng-template #loadingTemplate><div class="loading-state"><i class="pi pi-spin pi-spinner"></i> Transkript hazırlanıyor...</div></ng-template>
+</div>

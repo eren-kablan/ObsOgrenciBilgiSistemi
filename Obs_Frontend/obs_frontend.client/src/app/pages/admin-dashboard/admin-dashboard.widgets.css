@@ -1,0 +1,38 @@
+
+/* Admin panel tablo ve formları */
+.view-container { max-width: 850px; margin: 0 auto; }
+.form-card-styled { padding: 2rem; border-radius: 18px; }
+.form-card-header { display: flex; align-items: center; gap: 1rem; margin-bottom: 1.5rem; border-bottom: 1px solid #f1f5f9; padding-bottom: 1rem; }
+.form-card-header h2 { margin: 0; font-size: 1.25rem; font-weight: 800; color: #0f172a; }
+.form-card-header p { margin: 0.2rem 0 0 0; font-size: 0.82rem; color: #64748b; }
+.grid-form .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+.form-actions-row { display: flex; justify-content: flex-end; gap: 0.75rem; margin-top: 1rem; }
+.btn-secondary-cancel { background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; padding: 0.75rem 1.2rem; border-radius: 8px; font-weight: 700; cursor: pointer; }
+.btn-primary-submit { background: #2563eb; color: #ffffff; border: none; padding: 0.75rem 1.5rem; border-radius: 8px; font-weight: 700; cursor: pointer; }
+.btn-danger-submit { background: #dc2626; color: #ffffff; border: none; padding: 0.75rem 1.5rem; border-radius: 8px; font-weight: 700; cursor: pointer; }
+
+.custom-table { width: 100%; border-collapse: collapse; text-align: left; font-size: 0.85rem; }
+.custom-table th { background: #f8fafc; color: #64748b; padding: 0.8rem; border-bottom: 2px solid #e2e8f0; font-weight: 700; font-size: 0.72rem; }
+.custom-table td { padding: 0.8rem; border-bottom: 1px solid #f1f5f9; color: #1e293b; }
+.btn-tbl-edit { background: #eff6ff; color: #2563eb; border: none; padding: 0.4rem 0.6rem; border-radius: 6px; cursor: pointer; margin-right: 0.3rem; }
+.btn-tbl-delete { background: #fef2f2; color: #dc2626; border: none; padding: 0.4rem 0.6rem; border-radius: 6px; cursor: pointer; }
+.badge-dept { background: #f1f5f9; color: #475569; padding: 0.25rem 0.5rem; border-radius: 6px; font-weight: 600; font-size: 0.75rem; }
+
+.calendar-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; }
+.cal-title-group { display: flex; align-items: center; gap: 0.5rem; }
+.cal-icon { color: #2563eb; font-size: 1.1rem; }
+.cal-title-group h3 { margin: 0; font-size: 1rem; font-weight: 800; color: #0f172a; }
+.cal-actions { display: flex; gap: 0.3rem; }
+.btn-icon { background: #f8fafc; border: 1px solid #e2e8f0; width: 28px; height: 28px; border-radius: 6px; cursor: pointer; color: #64748b; }
+.btn-today { background: #f8fafc; border: 1px solid #e2e8f0; padding: 0 0.6rem; border-radius: 6px; font-size: 0.75rem; font-weight: 600; cursor: pointer; color: #334155; }
+.current-month_label { margin: 0 0 0.75rem 0; font-size: 0.95rem; font-weight: 800; color: #0f172a; text-align: left; }
+.cal-weekdays, .cal-days-grid { display: grid; grid-template-columns: repeat(7, 1fr); text-align: center; font-size: 0.75rem; }
+.cal-weekdays { font-weight: 700; color: #94a3b8; margin-bottom: 0.5rem; }
+.cal-days-grid span { padding: 0.35rem 0; height: 28px; display: flex; align-items: center; justify-content: center; font-weight: 600; color: #334155; }
+.cal-days-grid .muted { color: #cbd5e1; }
+.cal-days-grid .active-day { background: #2563eb; color: #ffffff; border-radius: 8px; font-weight: 700; }
+.cal-footer-indicator { margin-top: 1rem; background: #f8fafc; padding: 0.5rem 0.8rem; border-radius: 8px; font-size: 0.75rem; color: #64748b; font-weight: 600; display: flex; align-items: center; gap: 0.4rem; }
+.blue-dev { width: 8px; height: 8px; background: #2563eb; border-radius: 50%; }
+
+.admin-footer { display: flex; justify-content: space-between; padding-top: 1rem; border-top: 1px solid #e2e8f0; font-size: 0.75rem; color: #94a3b8; margin-top: 1rem; }
+.advisor-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1rem}.advisor-card{padding:1.2rem;border:1px solid #e2e8f0;border-radius:14px;background:#fff;box-shadow:0 4px 14px #0f172a0a}.advisor-card-head{display:flex;align-items:center;gap:.8rem;margin-bottom:1rem}.advisor-card-head h3{margin:0;color:#172033;font-size:.95rem}.advisor-card-head span{color:#94a3b8;font-size:.7rem}.advisor-department-icon{display:grid;width:42px;height:42px;place-items:center;border-radius:11px;background:#eaf2ff;color:#2563eb}.current-advisor{display:flex;flex-direction:column;gap:.25rem;margin-bottom:1rem;padding:.75rem;border-radius:9px;background:#f8fafc}.current-advisor span,.advisor-card label{color:#718096;font-size:.7rem;font-weight:600}.current-advisor strong{color:#1e3a5f;font-size:.82rem}.advisor-card label{display:block;margin-bottom:.4rem}.advisor-card select{width:100%;margin-bottom:.8rem;padding:.65rem;border:1px solid #cbd5e1;border-radius:8px;background:#fff;color:#334155}.advisor-card .btn-primary-submit{width:100%;justify-content:center}@media(max-width:900px){.advisor-grid{grid-template-columns:1fr}}
