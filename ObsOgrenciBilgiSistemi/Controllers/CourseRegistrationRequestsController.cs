@@ -35,8 +35,9 @@ public class CourseRegistrationRequestsController : ControllerBase
             (item.Durum == DersKayitDurumu.Bekliyor || item.Durum == DersKayitDurumu.Onaylandi));
         if (locked) return Conflict(new { message = "Bu dönem için bekleyen veya onaylanmış bir ders kaydınız bulunuyor." });
         var courses = await _context.Dersler.Where(course => courseIds.Contains(course.Id)).ToListAsync();
-        if (courses.Count != courseIds.Count || courses.Any(course => course.BolumId != student.BolumId || (int)course.Donem != request.Term))
-            return BadRequest(new { message = "Yalnızca kendi bölümünüzün aktif dönem derslerini seçebilirsiniz." });
+        if (courses.Count != courseIds.Count || courses.Any(course => course.BolumId != student.BolumId ||
+            course.Sinif != student.Sinif || (int)course.Donem != request.Term))
+            return BadRequest(new { message = "Yalnızca kendi bölüm, sınıf ve aktif dönem derslerinizi seçebilirsiniz." });
         int registeredAkts = await _context.OgrenciDersler.Where(item => item.OgrenciId == student.Id)
             .SumAsync(item => item.Ders.Akts);
         if (registeredAkts + courses.Sum(course => course.Akts) > 40)

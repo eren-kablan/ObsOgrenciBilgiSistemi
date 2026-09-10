@@ -56,7 +56,10 @@ export class DashboardComponent implements OnInit {
   toplamKredi: number = 0;
   tumDersler: any[] = [];
   donemDersleri: any[] = [];
-  readonly courseGradeGroups = [1, 2, 3, 4];
+  get courseGradeGroups(): number[] {
+    const grade = Number(this.userGrade);
+    return grade >= 1 && grade <= 4 ? [grade] : [];
+  }
   readonly maxAkts = 40;
   registeredAkts = 0;
   examResults: ExamResult[] = [];
@@ -123,7 +126,7 @@ export class DashboardComponent implements OnInit {
     this.generateCalendar();
 
     // YENİ: Gerçek API'den dersleri çekiyoruz
-    this.gercekDersleriGetir();
+    if (!this.isLecturer) this.gercekDersleriGetir();
     this.duyurulariGetir();
     if (this.isLecturer) this.loadCourseRequestData();
     if (!this.isLecturer && this.userEmail) { this.ganoGetir(); this.loadRegistrationStatus(); }
@@ -244,8 +247,7 @@ export class DashboardComponent implements OnInit {
   }
 
   gercekDersleriGetir() {
-    // API endpoint'ini kendi projene göre (örn: api/Dersler veya api/Courses) güncelleyebilirsin
-    this.http.get<any[]>('https://localhost:7066/api/Courses').subscribe({
+    this.http.get<any[]>(`${API_URL}/Courses/registration-options?term=${this.aktifDonem}`).subscribe({
       next: (res) => {
         // Backend'den gelen isimlendirmeler ne olursa olsun bizim tabloya uyduruyoruz
         this.tumDersler = res.map(ders => ({
@@ -256,7 +258,8 @@ export class DashboardComponent implements OnInit {
           akts: ders.akts ?? ders.Akts ?? 0,
           akademisyenAdi: ders.akademisyenAdi || ders.AkademisyenAdi || null,
           donem: ders.donem ?? ders.Donem ?? null,
-          sinif: ders.sinif ?? ders.Sinif ?? 0
+          sinif: ders.sinif ?? ders.Sinif ?? 0,
+          bolumId: ders.bolumId ?? ders.BolumId ?? null
         }));
       },
       error: (err) => console.error('Gerçek dersler veritabanından çekilemedi:', err)
@@ -276,9 +279,9 @@ export class DashboardComponent implements OnInit {
     this.aktifSekme = 'dersKaydi';
     this.loadExamResults();
 
-    // GÜVENLİK AĞI: Veritabanında dönem bilgisi (donem: null) yoksa ekran boş kalmasın diye tüm dersleri listele
+    const studentGrade = Number(this.userGrade);
     this.donemDersleri = this.tumDersler.filter(d =>
-      d.donem === this.aktifDonem && d.sinif >= 1 && d.sinif <= 4
+      d.donem === this.aktifDonem && d.sinif === studentGrade
     );
   }
 

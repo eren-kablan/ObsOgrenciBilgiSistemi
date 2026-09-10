@@ -5,9 +5,13 @@ VisualStudioVersion = 17.11.35312.102
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ObsOgrenciBilgiSistemi", "ObsOgrenciBilgiSistemi\ObsOgrenciBilgiSistemi.csproj", "{699146B7-9DBA-4F6A-91AE-632F2DDA8BF6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Obs_Frontend.Server", "Obs_Frontend\Obs_Frontend.Server\Obs_Frontend.Server.csproj", "{4EFA9B6E-6225-41C2-B186-8622D07E1270}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Obs_Frontend.Server", "Obs_Frontend\Obs_Frontend.Server\Obs_Frontend.Server.csproj", "{4EFA9B6E-6225-41C2-B186-8622D07E1270}"
 EndProject
 Project("{54A90642-561A-4BB1-A94E-469ADEE60C69}") = "obs_frontend.client", "Obs_Frontend\obs_frontend.client\obs_frontend.client.esproj", "{8A499DF8-3FF4-4795-9C84-E9A98C279E2F}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{9EF2671B-C388-4229-8390-0D74BA9B6E87}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "screenshots", "screenshots", "{96FA6AEE-CE87-4CE0-BBB1-C6FC8C6DF78D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -32,6 +36,9 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{96FA6AEE-CE87-4CE0-BBB1-C6FC8C6DF78D} = {9EF2671B-C388-4229-8390-0D74BA9B6E87}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {6125F127-904D-4DAC-8F14-1F8CFA5A9EA4}

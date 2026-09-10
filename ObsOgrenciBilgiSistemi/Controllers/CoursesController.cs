@@ -7,6 +7,7 @@ using ObsOgrenciBilgiSistemi.Data;
 using ObsOgrenciBilgiSistemi.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
 
 namespace ObsOgrenciBilgiSistemi.Controllers
 {
@@ -35,6 +36,45 @@ namespace ObsOgrenciBilgiSistemi.Controllers
             var query = new GetAllCoursesQuery();
             var result = await _mediator.Send(query);
             return Ok(result);
+        }
+
+        // Öğrencinin yalnızca kendi bölüm, sınıf ve dönemindeki dersleri
+        [HttpGet("registration-options")]
+        [Authorize(Roles = "Student,ogrenci,Öğrenci")]
+        public async Task<IActionResult> GetRegistrationOptions([FromQuery] int term)
+        {
+            if (term is < 1 or > 2)
+                return BadRequest(new { message = "Dönem bilgisi geçersiz." });
+
+            var email = User.FindFirstValue(ClaimTypes.Email);
+            var student = await _context.Ogrenciler.AsNoTracking()
+                .FirstOrDefaultAsync(item => item.Email == email);
+            if (student == null)
+                return NotFound(new { message = "Öğrenci bulunamadı." });
+
+            var courses = await _context.Dersler.AsNoTracking()
+                .Where(course => course.BolumId == student.BolumId &&
+                    course.Sinif == student.Sinif && (int)course.Donem == term)
+                .OrderBy(course => course.DersKodu)
+                .Select(course => new CourseDto
+                {
+                    Id = course.Id,
+                    DersKodu = course.DersKodu,
+                    Adi = course.Adi,
+                    Kredi = course.Kredi,
+                    Akts = course.Akts,
+                    BolumId = course.BolumId,
+                    BolumAdi = course.Bolum.Adi,
+                    AkademisyenEmail = course.AkademisyenEmail,
+                    AkademisyenAdi = course.Akademisyen == null
+                        ? null
+                        : course.Akademisyen.Unvani + " " + course.Akademisyen.Adi + " " + course.Akademisyen.Soyadi,
+                    Sinif = course.Sinif,
+                    Donem = course.Donem
+                })
+                .ToListAsync();
+
+            return Ok(courses);
         }
 
         // Ders oluşturma

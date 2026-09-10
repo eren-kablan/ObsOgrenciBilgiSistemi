@@ -120,7 +120,7 @@ using (var scope = app.Services.CreateScope())
 
     
     if (!await roleManager.RoleExistsAsync("Admin"))
-        await roleManager.CreateAsync(new AppRole { Name = "Admin" });
+        await roleManager.CreateAsync(new AppRole { Name = "Admin" }); 
 
     if (!await roleManager.RoleExistsAsync("Student"))
         await roleManager.CreateAsync(new AppRole { Name = "Student" });
