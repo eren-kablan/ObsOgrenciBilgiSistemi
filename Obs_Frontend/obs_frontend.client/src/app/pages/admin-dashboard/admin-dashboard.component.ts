@@ -6,8 +6,9 @@ import { Router } from '@angular/router';
 import { CalendarDay } from '../../shared/calendar/calendar.models';
 import { createCalendarView } from '../../shared/calendar/calendar.utils';
 import { ActiveView, AdminNotification, AdvisorDepartment, Announcement, CourseRequest, Department, Lecturer, Student } from './admin-dashboard.models';
+import { environment } from '../../../environments/environment';
 
-const API_URL = 'https://localhost:7066/api';
+const API_URL = environment.apiBaseUrl;
 
 @Component({
   selector: 'app-admin-dashboard',

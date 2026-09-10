@@ -1,13 +1,14 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
   // Login API bağlantısı
-  private apiUrl = 'https://localhost:7066/api/Auth/login';
+  private readonly apiUrl = `${environment.apiBaseUrl}/Auth/login`;
 
   constructor(private http: HttpClient) { }
 

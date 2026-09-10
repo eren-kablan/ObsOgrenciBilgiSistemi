@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-not-giris',
@@ -104,7 +105,7 @@ export class NotGirisComponent implements OnInit {
 
   ngOnInit() {
     const email = sessionStorage.getItem('userEmail') || '';
-    this.http.get<any[]>(`https://localhost:7066/api/Notlar/AkademisyenDersleri?email=${email}`).subscribe({
+    this.http.get<any[]>(`${environment.apiBaseUrl}/Notlar/AkademisyenDersleri?email=${email}`).subscribe({
       next: (res) => this.dersler = res,
       error: (err) => console.error('Dersler yüklenemedi:', err)
     });
@@ -129,7 +130,7 @@ export class NotGirisComponent implements OnInit {
 
     // Az önce backend tarafında (GetAllStudentsQueryHandler) filtreleme yazdığımız endpoint'e yönlendiriyoruz
     // (Eğer backend tarafında bu yazdığımız query'i farklı bir URL'ye atadıysan 'api/Students' kısmını ona göre değiştirebilirsin)
-    this.http.get<any[]>(`https://localhost:7066/api/Notlar/DersOgrencileri?dersId=${secilenDersId}`).subscribe({
+    this.http.get<any[]>(`${environment.apiBaseUrl}/Notlar/DersOgrencileri?dersId=${secilenDersId}`).subscribe({
       next: (res) => {
         // Backend'den gelen StudentDto (adi, soyadi) modelini bizim HTML tablomuzun
         // ve toplu kaydetme payload'umuzun beklediği formata (ad, soyad, ogrenciId) çevirerek mapliyoruz.
@@ -165,7 +166,7 @@ export class NotGirisComponent implements OnInit {
       }))
     };
 
-    this.http.post('https://localhost:7066/api/Notlar/TopluKaydet', payload).subscribe({
+    this.http.post(`${environment.apiBaseUrl}/Notlar/TopluKaydet`, payload).subscribe({
       next: () => {
         alert('Tüm sınıfın notları başarıyla kaydedildi!');
         this.saving = false;

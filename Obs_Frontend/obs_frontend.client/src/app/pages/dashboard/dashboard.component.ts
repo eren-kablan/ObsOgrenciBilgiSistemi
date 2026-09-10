@@ -6,8 +6,9 @@ import { HttpClient } from '@angular/common/http';
 import { CalendarDay } from '../../shared/calendar/calendar.models';
 import { createCalendarView } from '../../shared/calendar/calendar.utils';
 import { Announcement, CourseRequest, ExamResult } from './dashboard.models';
+import { environment } from '../../../environments/environment';
 
-const API_URL = 'https://localhost:7066/api';
+const API_URL = environment.apiBaseUrl;
 
 @Component({
   selector: 'app-dashboard',
@@ -99,7 +100,7 @@ export class DashboardComponent implements OnInit {
       this.userFaculty = sessionStorage.getItem('userFaculty') || 'Mühendislik Fakültesi';
       this.userInitials = this.getInitials(this.userName);
     } else if (this.userEmail) {
-      this.http.get<any>(`https://localhost:7066/api/Students/profile?email=${this.userEmail}`).subscribe({
+      this.http.get<any>(`${API_URL}/Students/profile?email=${this.userEmail}`).subscribe({
         next: (profile) => {
           const name = profile.ad || profile.adi || '';
           const surname = profile.soyad || profile.soyadi || '';
@@ -267,7 +268,7 @@ export class DashboardComponent implements OnInit {
   }
 
   ganoGetir() {
-    this.http.get<any>(`https://localhost:7066/api/Transkript/Ozet?email=${this.userEmail}`).subscribe({
+    this.http.get<any>(`${API_URL}/Transkript/Ozet?email=${this.userEmail}`).subscribe({
       next: result => this.gano = Number(result.gano) || 0,
       error: err => console.error('GANO özeti yüklenemedi:', err)
     });

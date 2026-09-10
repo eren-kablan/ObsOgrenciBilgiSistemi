@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { forkJoin } from 'rxjs';
+import { environment } from '../../../environments/environment';
 
 interface TranscriptCourse {
   dersKodu: string; dersAdi: string; akts: number; sinif: number; donem: string; harfNotu: string | null;
@@ -39,9 +40,9 @@ export class OgrenciNotlarComponent implements OnInit {
     this.academicYear = this.calculateAcademicYear();
     const encodedEmail = encodeURIComponent(email);
     forkJoin({
-      profile: this.http.get<StudentProfile>(`https://localhost:7066/api/Students/profile?email=${encodedEmail}`),
-      courses: this.http.get<any[]>(`https://localhost:7066/api/Notlar/OgrenciNotlari?email=${encodedEmail}`),
-      summary: this.http.get<any>(`https://localhost:7066/api/Transkript/Ozet?email=${encodedEmail}`)
+      profile: this.http.get<StudentProfile>(`${environment.apiBaseUrl}/Students/profile?email=${encodedEmail}`),
+      courses: this.http.get<any[]>(`${environment.apiBaseUrl}/Notlar/OgrenciNotlari?email=${encodedEmail}`),
+      summary: this.http.get<any>(`${environment.apiBaseUrl}/Transkript/Ozet?email=${encodedEmail}`)
     }).subscribe({
       next: result => {
         this.profile = result.profile;

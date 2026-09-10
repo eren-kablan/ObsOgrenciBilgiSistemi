@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
+import { environment } from '../../../environments/environment';
 
 interface AttendanceCourse {
   id: number;
@@ -33,7 +34,7 @@ export class DevamsizlikComponent implements OnInit {
   constructor(private http: HttpClient, private router: Router) {}
 
   ngOnInit(): void {
-    this.http.get<AttendanceCourse[]>('https://localhost:7066/api/Devamsizliklar/ogrenci-dersleri')
+    this.http.get<AttendanceCourse[]>(`${environment.apiBaseUrl}/Devamsizliklar/ogrenci-dersleri`)
       .subscribe({
         next: data => this.courses = data || [],
         error: error => console.error('Dersler yüklenemedi', error)
@@ -43,7 +44,7 @@ export class DevamsizlikComponent implements OnInit {
   selectCourse(course: AttendanceCourse): void {
     this.selectedCourse = course;
     this.weeks = [];
-    this.http.get<AttendanceWeek[]>(`https://localhost:7066/api/Devamsizliklar/ogrenci-ders/${course.id}`)
+    this.http.get<AttendanceWeek[]>(`${environment.apiBaseUrl}/Devamsizliklar/ogrenci-ders/${course.id}`)
       .subscribe({
         next: data => this.weeks = data || [],
         error: error => console.error('Haftalar yüklenemedi', error)

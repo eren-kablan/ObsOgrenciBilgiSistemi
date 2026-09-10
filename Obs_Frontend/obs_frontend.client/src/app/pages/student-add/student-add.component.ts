@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-student-add',
@@ -55,7 +56,7 @@ export class StudentAddComponent {
   constructor(private http: HttpClient, private router: Router) { }
 
   saveStudent() {
-    this.http.post('https://localhost:7066/api/Students', this.student).subscribe({
+    this.http.post(`${environment.apiBaseUrl}/Students`, this.student).subscribe({
       next: () => {
         alert('Öğrenci başarıyla eklendi!');
         this.router.navigate(['/admin-dashboard']);

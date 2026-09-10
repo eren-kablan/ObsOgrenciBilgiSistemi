@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-activation',
@@ -172,11 +173,9 @@ export class ActivationComponent implements OnInit {
 
     this.loading = true;
 
-    // YANLIŞ: this.http.post('https://localhost:7066/api/Auth/ChangePassword' ...)
-    // DOĞRU: Artık direkt ActivateAccount servisine gidiyoruz ve token'ı yolluyoruz!
     const request = this.activationToken
-      ? this.http.post('https://localhost:7066/api/Auth/ActivateAccount', { token: this.activationToken, password: this.password })
-      : this.http.post('https://localhost:7066/api/Auth/ChangePassword', { currentPassword: this.currentPassword, newPassword: this.password });
+      ? this.http.post(`${environment.apiBaseUrl}/Auth/ActivateAccount`, { token: this.activationToken, password: this.password })
+      : this.http.post(`${environment.apiBaseUrl}/Auth/ChangePassword`, { currentPassword: this.currentPassword, newPassword: this.password });
     request.subscribe({
       next: () => {
         alert('Hesabınız başarıyla aktifleştirildi! Yeni şifrenizle giriş yapabilirsiniz.');
