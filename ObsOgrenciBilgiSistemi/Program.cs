@@ -117,6 +117,10 @@ using (var scope = app.Services.CreateScope())
     var services = scope.ServiceProvider;
     var userManager = services.GetRequiredService<UserManager<AppUser>>();
     var roleManager = services.GetRequiredService<RoleManager<AppRole>>();
+    var dbContext = services.GetRequiredService<AppDbContext>();
+
+    // Bölüm listesi yeni kurulan veritabanlarında da eksiksiz ve tekrar oluşturmadan hazırlanır.
+    await DepartmentSeeder.SeedAsync(dbContext);
 
     
     if (!await roleManager.RoleExistsAsync("Admin"))

@@ -16,6 +16,7 @@ namespace ObsOgrenciBilgiSistemi.Features.Departments.Queries
         public async Task<List<DepartmentDto>> Handle(GetAllDepartmentsQuery request, CancellationToken cancellationToken)
         {
             return await _context.Bolumler
+                .OrderBy(b => b.Id)
                 .Select(b => new DepartmentDto
                 {
                     Id = b.Id,
