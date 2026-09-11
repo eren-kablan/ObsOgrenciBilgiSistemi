@@ -629,25 +629,112 @@
 
     <ng-container *ngIf="activeView === 'lecturer-delete'">
       <div class="view-container">
-        <div class="card-box form-card-styled">
+        <div class="card-box lecturer-delete-card">
           <div class="form-card-header">
             <div class="header-icon red-bg"><i class="pi pi-user-minus"></i></div>
             <div>
               <h2>Akademisyen Silme</h2>
-              <p>Sistemden silinecek akademisyen ID'sini girin ve onaylayın.</p>
+              <p>Akademisyeni listeden bulun, bilgilerini kontrol edin ve güvenli şekilde silin.</p>
             </div>
           </div>
 
-          <div class="form-layout">
-            <div class="field">
-              <label>Silinecek Akademisyen ID</label>
-              <input type="number" [(ngModel)]="targetLecturerId" placeholder="Örn: 3" />
-            </div>
+          <div class="lecturer-delete-toolbar">
+            <label class="lecturer-filter-field">
+              <span>Akademisyen Adı</span>
+              <div class="lecturer-search">
+                <i class="pi pi-user"></i>
+                <input
+                  type="search"
+                  [(ngModel)]="lecturerFirstNameSearch"
+                  placeholder="Adını girin"
+                />
+                <button
+                  *ngIf="lecturerFirstNameSearch"
+                  type="button"
+                  class="clear-search"
+                  aria-label="Ad aramasını temizle"
+                  (click)="lecturerFirstNameSearch = ''"
+                >
+                  <i class="pi pi-times"></i>
+                </button>
+              </div>
+            </label>
 
-            <button type="button" class="btn-danger-submit" (click)="deleteLecturer()" [disabled]="!targetLecturerId">
-              <i class="pi pi-trash"></i> Akademisyeni Sil
-            </button>
+            <label class="lecturer-filter-field">
+              <span>Akademisyen Soyadı</span>
+              <div class="lecturer-search">
+                <i class="pi pi-user"></i>
+                <input
+                  type="search"
+                  [(ngModel)]="lecturerLastNameSearch"
+                  placeholder="Soyadını girin"
+                />
+                <button
+                  *ngIf="lecturerLastNameSearch"
+                  type="button"
+                  class="clear-search"
+                  aria-label="Soyad aramasını temizle"
+                  (click)="lecturerLastNameSearch = ''"
+                >
+                  <i class="pi pi-times"></i>
+                </button>
+              </div>
+            </label>
+
+            <label class="lecturer-filter-field">
+              <span>Bölüm</span>
+              <select
+                [(ngModel)]="selectedDepartmentFilter"
+                (change)="onDepartmentFilterChange()"
+              >
+                <option [ngValue]="null">Tüm bölümler</option>
+                <option *ngFor="let dep of departments" [ngValue]="dep.id">{{ dep.ad }}</option>
+              </select>
+            </label>
           </div>
+
+          <div class="lecturer-result-summary">
+            <span>{{ filteredLecturers.length }} akademisyen listeleniyor</span>
+            <small *ngIf="lecturerFirstNameSearch || lecturerLastNameSearch">
+              Arama sonuçları
+            </small>
+          </div>
+
+          <div class="lecturer-delete-list" *ngIf="filteredLecturers.length; else noLecturerToDelete">
+            <article class="lecturer-delete-row" *ngFor="let lec of filteredLecturers">
+              <div class="lecturer-avatar" aria-hidden="true">
+                {{ lec.adi.charAt(0) }}{{ lec.soyadi.charAt(0) }}
+              </div>
+
+              <div class="lecturer-identity">
+                <strong>{{ lec.unvani }} {{ lec.adi }} {{ lec.soyadi }}</strong>
+                <span><i class="pi pi-envelope"></i> {{ lec.email }}</span>
+              </div>
+
+              <div class="lecturer-department">
+                <span>Bölüm</span>
+                <strong>{{ lec.bolumu || getDepartmentName(lec.bolumId) }}</strong>
+              </div>
+
+              <button
+                type="button"
+                class="lecturer-delete-button"
+                (click)="deleteLecturer(lec)"
+                [disabled]="!!deletingLecturerId"
+              >
+                <i class="pi" [ngClass]="deletingLecturerId === lec.id ? 'pi-spin pi-spinner' : 'pi-trash'"></i>
+                {{ deletingLecturerId === lec.id ? 'Siliniyor...' : 'Sil' }}
+              </button>
+            </article>
+          </div>
+
+          <ng-template #noLecturerToDelete>
+            <div class="lecturer-empty-state">
+              <i class="pi pi-search"></i>
+              <strong>Akademisyen bulunamadı</strong>
+              <span>Arama ifadenizi veya bölüm filtresini değiştirin.</span>
+            </div>
+          </ng-template>
         </div>
       </div>
     </ng-container>
@@ -736,7 +823,7 @@
                   <td><span class="badge-dept">Bölüm #{{ lec.bolumId }}</span></td>
                   <td>
                     <button class="btn-tbl-edit" (click)="quickEditLecturer(lec)"><i class="pi pi-pencil"></i></button>
-                    <button class="btn-tbl-delete" (click)="quickDeleteLecturer(lec.id!)"><i class="pi pi-trash"></i></button>
+                    <button class="btn-tbl-delete" (click)="quickDeleteLecturer(lec)" aria-label="Akademisyeni sil"><i class="pi pi-trash"></i></button>
                   </td>
                 </tr>
                 <tr *ngIf="lecturerList.length === 0">

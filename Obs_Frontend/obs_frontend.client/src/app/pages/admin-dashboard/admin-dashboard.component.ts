@@ -41,6 +41,9 @@ export class AdminDashboardComponent implements OnInit {
   // Öğrenci ve akademisyen verileri
   targetStudentId?: number;
   targetLecturerId?: number;
+  lecturerFirstNameSearch = '';
+  lecturerLastNameSearch = '';
+  deletingLecturerId?: number;
   selectedStudentDepartmentFilter: number | null = null;
   selectedDepartmentFilter: number | null = null;
   selectedCourseDepartmentFilter: number | null = null;
@@ -202,7 +205,13 @@ export class AdminDashboardComponent implements OnInit {
     event?.stopPropagation();
     this.activeView = view;
     if (view === 'student-list') this.fetchAllStudents();
-    else if (view === 'lecturer-list') this.fetchLecturers();
+    else if (view === 'lecturer-list' || view === 'lecturer-delete') {
+      if (view === 'lecturer-delete') {
+        this.lecturerFirstNameSearch = '';
+        this.lecturerLastNameSearch = '';
+      }
+      this.fetchLecturers();
+    }
     else if (view === 'department-management') this.fetchDepartments();
     else if (view === 'ders-atamalari') this.fetchPendingCourseRequests();
     else if (view === 'danisman-atama') this.fetchAdvisorDepartments();
@@ -439,6 +448,21 @@ export class AdminDashboardComponent implements OnInit {
 
   onDepartmentFilterChange(): void { this.fetchLecturers(); }
 
+  get filteredLecturers(): Lecturer[] {
+    const firstName = this.lecturerFirstNameSearch.trim().toLocaleLowerCase('tr-TR');
+    const lastName = this.lecturerLastNameSearch.trim().toLocaleLowerCase('tr-TR');
+    if (!firstName && !lastName) return this.lecturerList;
+
+    return this.lecturerList.filter(lecturer =>
+      (!firstName || lecturer.adi.toLocaleLowerCase('tr-TR').includes(firstName)) &&
+      (!lastName || lecturer.soyadi.toLocaleLowerCase('tr-TR').includes(lastName))
+    );
+  }
+
+  getDepartmentName(departmentId: number): string {
+    return this.departments.find(department => department.id === departmentId)?.ad || `Bölüm #${departmentId}`;
+  }
+
   createLecturer(): void {
     if (!this.lecturer.adi || !this.lecturer.soyadi) return void this.notification.warning('Lütfen akademisyen adını ve soyadını girin.');
     this.loadingLecturer = true;
@@ -459,17 +483,29 @@ export class AdminDashboardComponent implements OnInit {
     });
   }
 
-  async deleteLecturer(): Promise<void> {
-    if (!this.targetLecturerId) return;
+  async deleteLecturer(lecturer: Lecturer): Promise<void> {
+    const lecturerId = lecturer.id;
+    if (!lecturerId || this.deletingLecturerId) return;
+
+    const lecturerName = `${lecturer.unvani} ${lecturer.adi} ${lecturer.soyadi}`.trim();
     const confirmed = await this.notification.confirm(
-      `${this.targetLecturerId} ID'li akademisyeni silmek istediğinize emin misiniz?`,
+      `${lecturerName} (${lecturer.email}) sistemden silinecek. Ders atamaları ve danışmanlık bağlantıları kaldırılacak. Bu işlemi onaylıyor musunuz?`,
       'Akademisyeni sil',
       'Akademisyeni sil'
     );
     if (!confirmed) return;
-    this.http.delete(`${API_URL}/Lecturers/${this.targetLecturerId}`, { headers: this.getAuthHeaders() }).subscribe({
-      next: () => { this.notification.success('Akademisyen başarıyla silindi.'); this.targetLecturerId = undefined; this.switchView('lecturer-list'); },
-      error: () => this.notification.error('Silme işlemi başarısız.')
+
+    this.deletingLecturerId = lecturerId;
+    this.http.delete(`${API_URL}/Lecturers/${lecturerId}`, { headers: this.getAuthHeaders() }).subscribe({
+      next: () => {
+        this.deletingLecturerId = undefined;
+        this.lecturerList = this.lecturerList.filter(item => item.id !== lecturerId);
+        this.notification.success(`${lecturerName} sistemden silindi.`);
+      },
+      error: error => {
+        this.deletingLecturerId = undefined;
+        this.notification.error(error?.error?.message || 'Akademisyen silinemedi.');
+      }
     });
   }
 
@@ -490,7 +526,7 @@ export class AdminDashboardComponent implements OnInit {
   }
 
   quickEditLecturer(lecturer: Lecturer): void { this.targetLecturerId = lecturer.id; this.editLecturer = { ...lecturer }; this.switchView('lecturer-update'); }
-  quickDeleteLecturer(id: number): void { this.targetLecturerId = id; this.switchView('lecturer-delete'); }
+  quickDeleteLecturer(lecturer: Lecturer): void { void this.deleteLecturer(lecturer); }
   toggleAdminDropdown(): void {
     this.showAdminDropdown = !this.showAdminDropdown;
     this.showNotifications = false;
