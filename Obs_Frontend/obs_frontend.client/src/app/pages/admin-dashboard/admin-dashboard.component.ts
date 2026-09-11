@@ -39,14 +39,14 @@ export class AdminDashboardComponent implements OnInit {
   notifications: AdminNotification[] = [];
 
   // Öğrenci ve akademisyen verileri
-  targetStudentId?: number;
-  targetLecturerId?: number;
   studentFirstNameSearch = '';
   studentLastNameSearch = '';
   deletingStudentId?: number;
+  updatingStudent = false;
   lecturerFirstNameSearch = '';
   lecturerLastNameSearch = '';
   deletingLecturerId?: number;
+  updatingLecturer = false;
   selectedStudentDepartmentFilter: number | null = null;
   selectedDepartmentFilter: number | null = null;
   selectedCourseDepartmentFilter: number | null = null;
@@ -207,18 +207,20 @@ export class AdminDashboardComponent implements OnInit {
     event?.preventDefault();
     event?.stopPropagation();
     this.activeView = view;
-    if (view === 'student-list' || view === 'student-delete') {
-      if (view === 'student-delete') {
+    if (view === 'student-list' || view === 'student-delete' || view === 'student-update') {
+      if (view === 'student-delete' || view === 'student-update') {
         this.studentFirstNameSearch = '';
         this.studentLastNameSearch = '';
       }
+      if (view === 'student-update') this.editStudent = null;
       this.fetchAllStudents();
     }
-    else if (view === 'lecturer-list' || view === 'lecturer-delete') {
-      if (view === 'lecturer-delete') {
+    else if (view === 'lecturer-list' || view === 'lecturer-delete' || view === 'lecturer-update') {
+      if (view === 'lecturer-delete' || view === 'lecturer-update') {
         this.lecturerFirstNameSearch = '';
         this.lecturerLastNameSearch = '';
       }
+      if (view === 'lecturer-update') this.editLecturer = null;
       this.fetchLecturers();
     }
     else if (view === 'department-management') this.fetchDepartments();
@@ -454,20 +456,33 @@ export class AdminDashboardComponent implements OnInit {
 
   quickDeleteStudent(student: Student): void { void this.deleteStudent(student); }
 
-  fetchStudentForUpdate(): void {
-    if (!this.targetStudentId) return;
-    this.http.get<Student>(`${API_URL}/Students/${this.targetStudentId}`, { headers: this.getAuthHeaders() }).subscribe({
-      next: student => this.editStudent = student,
-      error: () => this.notification.error('Öğrenci bulunamadı.')
-    });
+  selectStudentForUpdate(student: Student): void {
+    this.editStudent = { ...student };
   }
 
   updateStudent(): void {
     if (!this.editStudent?.id) return;
+    this.updatingStudent = true;
     this.http.put(`${API_URL}/Students/${this.editStudent.id}`, this.editStudent, { headers: this.getAuthHeaders() }).subscribe({
-      next: () => { this.notification.success('Öğrenci bilgileri güncellendi.'); this.editStudent = null; this.fetchStats(); this.switchView('student-list'); },
-      error: () => this.notification.error('Güncelleme başarısız.')
+      next: () => {
+        this.updatingStudent = false;
+        this.notification.success('Öğrenci bilgileri güncellendi.');
+        this.editStudent = null;
+        this.fetchStats();
+        this.switchView('student-list');
+      },
+      error: error => {
+        this.updatingStudent = false;
+        this.notification.error(error?.error?.message || 'Güncelleme başarısız.');
+      }
     });
+  }
+
+  quickEditStudent(student: Student): void {
+    this.activeView = 'student-update';
+    this.studentFirstNameSearch = '';
+    this.studentLastNameSearch = '';
+    this.selectStudentForUpdate(student);
   }
 
   // Akademisyen işlemleri
@@ -544,23 +559,33 @@ export class AdminDashboardComponent implements OnInit {
     });
   }
 
-  fetchLecturerForUpdate(): void {
-    if (!this.targetLecturerId) return;
-    this.http.get<Lecturer>(`${API_URL}/Lecturers/${this.targetLecturerId}`, { headers: this.getAuthHeaders() }).subscribe({
-      next: lecturer => this.editLecturer = lecturer,
-      error: () => this.notification.error('Akademisyen bulunamadı.')
-    });
+  selectLecturerForUpdate(lecturer: Lecturer): void {
+    this.editLecturer = { ...lecturer };
   }
 
   updateLecturer(): void {
     if (!this.editLecturer?.id) return;
+    this.updatingLecturer = true;
     this.http.put(`${API_URL}/Lecturers/${this.editLecturer.id}`, this.editLecturer, { headers: this.getAuthHeaders() }).subscribe({
-      next: () => { this.notification.success('Akademisyen bilgileri güncellendi.'); this.editLecturer = null; this.switchView('lecturer-list'); },
-      error: () => this.notification.error('Güncelleme başarısız.')
+      next: () => {
+        this.updatingLecturer = false;
+        this.notification.success('Akademisyen bilgileri güncellendi.');
+        this.editLecturer = null;
+        this.switchView('lecturer-list');
+      },
+      error: error => {
+        this.updatingLecturer = false;
+        this.notification.error(error?.error?.message || 'Güncelleme başarısız.');
+      }
     });
   }
 
-  quickEditLecturer(lecturer: Lecturer): void { this.targetLecturerId = lecturer.id; this.editLecturer = { ...lecturer }; this.switchView('lecturer-update'); }
+  quickEditLecturer(lecturer: Lecturer): void {
+    this.activeView = 'lecturer-update';
+    this.lecturerFirstNameSearch = '';
+    this.lecturerLastNameSearch = '';
+    this.selectLecturerForUpdate(lecturer);
+  }
   quickDeleteLecturer(lecturer: Lecturer): void { void this.deleteLecturer(lecturer); }
   toggleAdminDropdown(): void {
     this.showAdminDropdown = !this.showAdminDropdown;

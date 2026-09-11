@@ -578,21 +578,96 @@
 
     <ng-container *ngIf="activeView === 'student-update'">
       <div class="view-container">
-        <div class="card-box form-card-styled">
+        <div class="card-box record-delete-card">
           <div class="form-card-header">
             <div class="header-icon orange-bg"><i class="pi pi-user-edit"></i></div>
-            <div><h2>Öğrenci Güncelleme</h2><p>Öğrenci bilgilerini düzenleyin.</p></div>
+            <div><h2>Öğrenci Güncelleme</h2><p>Öğrenciyi listeden seçin ve bilgilerini düzenleyin.</p></div>
           </div>
-          <div class="search-box-row" style="margin-bottom: 1.5rem; display: flex; gap: 0.5rem;">
-            <input type="number" [(ngModel)]="targetStudentId" placeholder="Öğrenci ID..." style="flex-grow: 1; padding: 0.6rem; border: 1px solid #cbd5e1; border-radius: 8px;" />
-            <button type="button" class="btn-primary-submit" (click)="fetchStudentForUpdate()">Öğrenciyi Getir</button>
+
+          <div class="record-delete-toolbar">
+            <label class="record-filter-field">
+              <span>Öğrenci Adı</span>
+              <div class="record-search">
+                <i class="pi pi-user"></i>
+                <input type="search" [(ngModel)]="studentFirstNameSearch" placeholder="Adını girin" />
+                <button *ngIf="studentFirstNameSearch" type="button" class="clear-search" aria-label="Ad aramasını temizle" (click)="studentFirstNameSearch = ''"><i class="pi pi-times"></i></button>
+              </div>
+            </label>
+
+            <label class="record-filter-field">
+              <span>Öğrenci Soyadı</span>
+              <div class="record-search">
+                <i class="pi pi-user"></i>
+                <input type="search" [(ngModel)]="studentLastNameSearch" placeholder="Soyadını girin" />
+                <button *ngIf="studentLastNameSearch" type="button" class="clear-search" aria-label="Soyad aramasını temizle" (click)="studentLastNameSearch = ''"><i class="pi pi-times"></i></button>
+              </div>
+            </label>
+
+            <label class="record-filter-field">
+              <span>Bölüm</span>
+              <select [(ngModel)]="selectedStudentDepartmentFilter" (change)="onStudentDepartmentFilterChange()">
+                <option [ngValue]="null">Tüm bölümler</option>
+                <option *ngFor="let dep of departments" [ngValue]="dep.id">{{ dep.ad }}</option>
+              </select>
+            </label>
           </div>
-          <form *ngIf="editStudent" (ngSubmit)="updateStudent()" class="form-layout grid-form">
-            <div class="form-row">
-              <div class="field"><label>Ad</label><input type="text" [(ngModel)]="editStudent.adi" name="eAdi" /></div>
-              <div class="field"><label>Soyad</label><input type="text" [(ngModel)]="editStudent.soyadi" name="eSoyadi" /></div>
+
+          <div class="record-result-summary">
+            <span>{{ filteredStudents.length }} öğrenci listeleniyor</span>
+            <small *ngIf="editStudent">Seçilen öğrenci: {{ editStudent.adi }} {{ editStudent.soyadi }}</small>
+          </div>
+
+          <div class="record-delete-list" *ngIf="filteredStudents.length; else noStudentToUpdate">
+            <article class="record-delete-row" *ngFor="let std of filteredStudents" [class.record-row-selected]="editStudent?.id === std.id">
+              <div class="record-avatar" aria-hidden="true">{{ std.adi.charAt(0) }}{{ std.soyadi.charAt(0) }}</div>
+              <div class="record-identity">
+                <strong>{{ std.adi }} {{ std.soyadi }}</strong>
+                <span><i class="pi pi-id-card"></i> {{ std.ogrenciNumarasi || 'Numara bulunmuyor' }}</span>
+              </div>
+              <div class="record-detail">
+                <span>{{ std.sinif }}. Sınıf</span>
+                <strong>{{ std.bolumAdi || getDepartmentName(std.bolumId) }}</strong>
+              </div>
+              <button type="button" class="record-edit-button" (click)="selectStudentForUpdate(std)">
+                <i class="pi pi-pencil"></i>
+                {{ editStudent?.id === std.id ? 'Seçildi' : 'Düzenle' }}
+              </button>
+            </article>
+          </div>
+
+          <ng-template #noStudentToUpdate>
+            <div class="record-empty-state">
+              <i class="pi pi-search"></i>
+              <strong>Öğrenci bulunamadı</strong>
+              <span>Ad, soyad veya bölüm filtresini değiştirin.</span>
             </div>
-            <button type="submit" class="btn-primary-submit">Kaydet</button>
+          </ng-template>
+
+          <form *ngIf="editStudent" (ngSubmit)="updateStudent()" class="form-layout grid-form record-edit-form">
+            <div class="record-edit-form-title">
+              <i class="pi pi-user-edit"></i>
+              <div><strong>{{ editStudent.adi }} {{ editStudent.soyadi }}</strong><span>öğrencisinin bilgilerini düzenliyorsunuz</span></div>
+            </div>
+            <div class="form-row">
+              <div class="field"><label>Ad</label><input type="text" [(ngModel)]="editStudent.adi" name="eAdi" required /></div>
+              <div class="field"><label>Soyad</label><input type="text" [(ngModel)]="editStudent.soyadi" name="eSoyadi" required /></div>
+            </div>
+            <div class="form-row">
+              <div class="field"><label>Öğrenci Numarası</label><input type="text" [(ngModel)]="editStudent.ogrenciNumarasi" name="eOgrenciNumarasi" required /></div>
+              <div class="field">
+                <label>Bölüm</label>
+                <select [(ngModel)]="editStudent.bolumId" name="eBolumId" required>
+                  <option *ngFor="let dep of departments" [ngValue]="dep.id">{{ dep.ad }}</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-actions-row">
+              <button type="button" class="btn-secondary-cancel" (click)="editStudent = null">Vazgeç</button>
+              <button type="submit" class="btn-primary-submit" [disabled]="updatingStudent">
+                <i class="pi" [ngClass]="updatingStudent ? 'pi-spin pi-spinner' : 'pi-check'"></i>
+                {{ updatingStudent ? 'Kaydediliyor...' : 'Değişiklikleri Kaydet' }}
+              </button>
+            </div>
           </form>
         </div>
       </div>
@@ -621,6 +696,14 @@
                 <td>{{ std.sinif }}. Sınıf</td>
                 <td>{{ std.bolumAdi }}</td>
                 <td>
+                  <button
+                    type="button"
+                    class="btn-tbl-edit"
+                    [attr.aria-label]="std.adi + ' ' + std.soyadi + ' adlı öğrenciyi düzenle'"
+                    (click)="quickEditStudent(std)"
+                  >
+                    <i class="pi pi-pencil"></i>
+                  </button>
                   <button
                     type="button"
                     class="btn-tbl-delete"
@@ -810,30 +893,97 @@
 
     <ng-container *ngIf="activeView === 'lecturer-update'">
       <div class="view-container">
-        <div class="card-box form-card-styled">
+        <div class="card-box record-delete-card">
           <div class="form-card-header">
             <div class="header-icon orange-bg"><i class="pi pi-user-edit"></i></div>
             <div>
               <h2>Akademisyen Bilgileri & Ünvan Güncelleme</h2>
-              <p>Akademisyenin ünvanını, adını veya bölümünü güncelleyin.</p>
+              <p>Akademisyeni listeden seçin ve bilgilerini düzenleyin.</p>
             </div>
           </div>
 
-          <div class="search-box-row" style="margin-bottom: 1.5rem; display: flex; gap: 0.5rem;">
-            <input type="number" [(ngModel)]="targetLecturerId" placeholder="Akademisyen ID giriniz..." style="flex-grow: 1; padding: 0.6rem; border: 1px solid #cbd5e1; border-radius: 8px;" />
-            <button type="button" class="btn-primary-submit" (click)="fetchLecturerForUpdate()">Akademisyeni Getir</button>
+          <div class="record-delete-toolbar">
+            <label class="record-filter-field">
+              <span>Akademisyen Adı</span>
+              <div class="record-search">
+                <i class="pi pi-user"></i>
+                <input type="search" [(ngModel)]="lecturerFirstNameSearch" placeholder="Adını girin" />
+                <button *ngIf="lecturerFirstNameSearch" type="button" class="clear-search" aria-label="Ad aramasını temizle" (click)="lecturerFirstNameSearch = ''"><i class="pi pi-times"></i></button>
+              </div>
+            </label>
+
+            <label class="record-filter-field">
+              <span>Akademisyen Soyadı</span>
+              <div class="record-search">
+                <i class="pi pi-user"></i>
+                <input type="search" [(ngModel)]="lecturerLastNameSearch" placeholder="Soyadını girin" />
+                <button *ngIf="lecturerLastNameSearch" type="button" class="clear-search" aria-label="Soyad aramasını temizle" (click)="lecturerLastNameSearch = ''"><i class="pi pi-times"></i></button>
+              </div>
+            </label>
+
+            <label class="record-filter-field">
+              <span>Bölüm</span>
+              <select [(ngModel)]="selectedDepartmentFilter" (change)="onDepartmentFilterChange()">
+                <option [ngValue]="null">Tüm bölümler</option>
+                <option *ngFor="let dep of departments" [ngValue]="dep.id">{{ dep.ad }}</option>
+              </select>
+            </label>
           </div>
 
-          <form *ngIf="editLecturer" (ngSubmit)="updateLecturer()" class="form-layout grid-form">
-            <div class="field">
-              <label>Ünvan</label>
-              <select [(ngModel)]="editLecturer.unvani" name="editUnvani" required>
-                <option value="Prof. Dr.">Prof. Dr.</option>
-                <option value="Doç. Dr.">Doç. Dr.</option>
-                <option value="Dr. Öğr. Üyesi">Dr. Öğr. Üyesi</option>
-                <option value="Öğr. Gör.">Öğr. Gör.</option>
-                <option value="Arş. Gör.">Arş. Gör.</option>
-              </select>
+          <div class="record-result-summary">
+            <span>{{ filteredLecturers.length }} akademisyen listeleniyor</span>
+            <small *ngIf="editLecturer">Seçilen akademisyen: {{ editLecturer.unvani }} {{ editLecturer.adi }} {{ editLecturer.soyadi }}</small>
+          </div>
+
+          <div class="record-delete-list" *ngIf="filteredLecturers.length; else noLecturerToUpdate">
+            <article class="record-delete-row" *ngFor="let lec of filteredLecturers" [class.record-row-selected]="editLecturer?.id === lec.id">
+              <div class="record-avatar" aria-hidden="true">{{ lec.adi.charAt(0) }}{{ lec.soyadi.charAt(0) }}</div>
+              <div class="record-identity">
+                <strong>{{ lec.unvani }} {{ lec.adi }} {{ lec.soyadi }}</strong>
+                <span><i class="pi pi-envelope"></i> {{ lec.email }}</span>
+              </div>
+              <div class="record-detail">
+                <span>Bölüm</span>
+                <strong>{{ lec.bolumu || getDepartmentName(lec.bolumId) }}</strong>
+              </div>
+              <button type="button" class="record-edit-button" (click)="selectLecturerForUpdate(lec)">
+                <i class="pi pi-pencil"></i>
+                {{ editLecturer?.id === lec.id ? 'Seçildi' : 'Düzenle' }}
+              </button>
+            </article>
+          </div>
+
+          <ng-template #noLecturerToUpdate>
+            <div class="record-empty-state">
+              <i class="pi pi-search"></i>
+              <strong>Akademisyen bulunamadı</strong>
+              <span>Ad, soyad veya bölüm filtresini değiştirin.</span>
+            </div>
+          </ng-template>
+
+          <form *ngIf="editLecturer" (ngSubmit)="updateLecturer()" class="form-layout grid-form record-edit-form">
+            <div class="record-edit-form-title">
+              <i class="pi pi-user-edit"></i>
+              <div><strong>{{ editLecturer.unvani }} {{ editLecturer.adi }} {{ editLecturer.soyadi }}</strong><span>akademisyeninin bilgilerini düzenliyorsunuz</span></div>
+            </div>
+
+            <div class="form-row">
+              <div class="field">
+                <label>Ünvan</label>
+                <select [(ngModel)]="editLecturer.unvani" name="editUnvani" required>
+                  <option value="Prof. Dr.">Prof. Dr.</option>
+                  <option value="Doç. Dr.">Doç. Dr.</option>
+                  <option value="Dr. Öğr. Üyesi">Dr. Öğr. Üyesi</option>
+                  <option value="Öğr. Gör.">Öğr. Gör.</option>
+                  <option value="Arş. Gör.">Arş. Gör.</option>
+                </select>
+              </div>
+              <div class="field">
+                <label>Bölüm</label>
+                <select [(ngModel)]="editLecturer.bolumId" name="elBolumId" required>
+                  <option *ngFor="let dep of departments" [ngValue]="dep.id">{{ dep.ad }}</option>
+                </select>
+              </div>
             </div>
 
             <div class="form-row">
@@ -841,13 +991,14 @@
               <div class="field"><label>Soyad</label><input type="text" [(ngModel)]="editLecturer.soyadi" name="elSoyadi" required /></div>
             </div>
 
-            <div class="form-row">
-              <div class="field"><label>E-Posta</label><input type="email" [(ngModel)]="editLecturer.email" name="elEmail" required /></div>
-              <div class="field"><label>Bölüm ID</label><input type="number" [(ngModel)]="editLecturer.bolumId" name="elBolumId" required /></div>
-            </div>
+            <div class="field"><label>E-Posta</label><input type="email" [(ngModel)]="editLecturer.email" name="elEmail" required /></div>
 
             <div class="form-actions-row">
-              <button type="submit" class="btn-primary-submit">Değişiklikleri Kaydet</button>
+              <button type="button" class="btn-secondary-cancel" (click)="editLecturer = null">Vazgeç</button>
+              <button type="submit" class="btn-primary-submit" [disabled]="updatingLecturer">
+                <i class="pi" [ngClass]="updatingLecturer ? 'pi-spin pi-spinner' : 'pi-check'"></i>
+                {{ updatingLecturer ? 'Kaydediliyor...' : 'Değişiklikleri Kaydet' }}
+              </button>
             </div>
           </form>
         </div>
