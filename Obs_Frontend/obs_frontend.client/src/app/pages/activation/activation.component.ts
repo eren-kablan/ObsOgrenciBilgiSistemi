@@ -22,30 +22,73 @@ import { NotificationService } from '../../services/notification.service';
         <form (ngSubmit)="setNewPassword()">
           <div class="form-group" *ngIf="!activationToken">
             <label for="currentPassword">Geçici / Mevcut Şifre</label>
-            <input type="password" id="currentPassword" [(ngModel)]="currentPassword" name="currentPassword" required />
+            <div class="password-input-wrapper">
+              <input
+                [type]="showCurrentPassword ? 'text' : 'password'"
+                id="currentPassword"
+                [(ngModel)]="currentPassword"
+                name="currentPassword"
+                placeholder="••••••••"
+                required
+              />
+              <button
+                type="button"
+                class="password-toggle"
+                (click)="showCurrentPassword = !showCurrentPassword"
+                [attr.aria-label]="showCurrentPassword ? 'Geçici şifreyi gizle' : 'Geçici şifreyi göster'"
+                [attr.aria-pressed]="showCurrentPassword"
+                [title]="showCurrentPassword ? 'Şifreyi gizle' : 'Şifreyi göster'"
+              >
+                <i class="pi" [ngClass]="showCurrentPassword ? 'pi-eye-slash' : 'pi-eye'"></i>
+              </button>
+            </div>
           </div>
           <div class="form-group">
             <label for="password">Yeni Şifre</label>
-            <input
-              type="password"
-              id="password"
-              [(ngModel)]="password"
-              name="password"
-              placeholder="••••••••"
-              required
-            />
+            <div class="password-input-wrapper">
+              <input
+                [type]="showPassword ? 'text' : 'password'"
+                id="password"
+                [(ngModel)]="password"
+                name="password"
+                placeholder="••••••••"
+                required
+              />
+              <button
+                type="button"
+                class="password-toggle"
+                (click)="showPassword = !showPassword"
+                [attr.aria-label]="showPassword ? 'Yeni şifreyi gizle' : 'Yeni şifreyi göster'"
+                [attr.aria-pressed]="showPassword"
+                [title]="showPassword ? 'Şifreyi gizle' : 'Şifreyi göster'"
+              >
+                <i class="pi" [ngClass]="showPassword ? 'pi-eye-slash' : 'pi-eye'"></i>
+              </button>
+            </div>
           </div>
 
           <div class="form-group">
             <label for="confirmPassword">Şifre Tekrarı</label>
-            <input
-              type="password"
-              id="confirmPassword"
-              [(ngModel)]="confirmPassword"
-              name="confirmPassword"
-              placeholder="••••••••"
-              required
-            />
+            <div class="password-input-wrapper">
+              <input
+                [type]="showConfirmPassword ? 'text' : 'password'"
+                id="confirmPassword"
+                [(ngModel)]="confirmPassword"
+                name="confirmPassword"
+                placeholder="••••••••"
+                required
+              />
+              <button
+                type="button"
+                class="password-toggle"
+                (click)="showConfirmPassword = !showConfirmPassword"
+                [attr.aria-label]="showConfirmPassword ? 'Şifre tekrarını gizle' : 'Şifre tekrarını göster'"
+                [attr.aria-pressed]="showConfirmPassword"
+                [title]="showConfirmPassword ? 'Şifreyi gizle' : 'Şifreyi göster'"
+              >
+                <i class="pi" [ngClass]="showConfirmPassword ? 'pi-eye-slash' : 'pi-eye'"></i>
+              </button>
+            </div>
           </div>
 
           <button type="submit" [disabled]="loading" class="btn-submit">
@@ -117,6 +160,38 @@ import { NotificationService } from '../../services/notification.service';
     }
     input:focus {
       border-color: #2563eb;
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+    }
+    .password-input-wrapper {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+    .password-input-wrapper input {
+      padding-right: 3rem;
+    }
+    .password-toggle {
+      position: absolute;
+      right: 0.45rem;
+      width: 2.25rem;
+      height: 2.25rem;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border: 0;
+      border-radius: 8px;
+      background: transparent;
+      color: #64748b;
+      cursor: pointer;
+      transition: color 0.2s, background 0.2s;
+    }
+    .password-toggle:hover {
+      color: #2563eb;
+      background: #eff6ff;
+    }
+    .password-toggle:focus-visible {
+      outline: 2px solid #2563eb;
+      outline-offset: 1px;
     }
     .btn-submit {
       width: 100%;
@@ -144,6 +219,9 @@ export class ActivationComponent implements OnInit {
   password: string = '';
   currentPassword: string = '';
   confirmPassword: string = '';
+  showCurrentPassword: boolean = false;
+  showPassword: boolean = false;
+  showConfirmPassword: boolean = false;
   loading: boolean = false;
   activationToken: string = '';
 
