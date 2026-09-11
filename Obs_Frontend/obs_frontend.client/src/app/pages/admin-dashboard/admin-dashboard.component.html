@@ -340,6 +340,16 @@
             <div class="header-icon blue-bg"><i class="pi pi-list"></i></div>
             <div><h2>Sistemdeki Bölümler</h2><p>Toplam {{ departments.length }} bölüm kayıtlı.</p></div>
           </div>
+          <div class="department-sync-panel">
+            <div>
+              <i class="pi pi-cloud-download"></i>
+              <span><strong>EBS bölüm listesini eşitle</strong><small>Eksik normal öğretim lisans programlarını ve müfredatlarını güvenle ekler.</small></span>
+            </div>
+            <button type="button" (click)="importCurricula()" [disabled]="loadingCurriculumImport">
+              <i class="pi" [ngClass]="loadingCurriculumImport ? 'pi-spin pi-spinner' : 'pi-refresh'"></i>
+              {{ loadingCurriculumImport ? 'Eşitleniyor...' : "EBS'den Eşitle" }}
+            </button>
+          </div>
           <div class="department-list">
             <div class="department-list-item" *ngFor="let department of departments">
               <span class="department-list-icon"><i class="pi pi-building"></i></span>
@@ -360,10 +370,10 @@
             <span class="curriculum-import-icon"><i class="pi pi-building-columns"></i></span>
             <div>
               <div class="curriculum-import-heading">
-                <h2>Üniversite Müfredatını Güncelle</h2>
+                <h2>Bölümleri ve Müfredatı Eşitle</h2>
                 <span class="curriculum-source-status"><i class="pi pi-verified"></i> Resmî kaynak</span>
               </div>
-              <p>Ders kodu, ders adı, kredi, AKTS ve dönem bilgileri Düzce Üniversitesi Eğitim Bilgi Sistemi üzerinden alınır.</p>
+              <p>EBS'deki normal öğretim lisans programları eksik bölümlere eklenir; ders kodu, adı, kredi, AKTS ve dönem bilgileri resmî kaynaktan alınır. Mevcut bölüm ID'leri ve ilişkili kayıtlar korunur.</p>
               <a class="curriculum-source-link" href="https://ebs.duzce.edu.tr/tr-TR/Program/Index/2" target="_blank" rel="noopener noreferrer">
                 <i class="pi pi-external-link"></i>
                 <span><small>VERİ KAYNAĞI</small>Düzce Üniversitesi EBS — Lisans Programları</span>
@@ -372,7 +382,7 @@
           </div>
           <button type="button" class="curriculum-import-button" (click)="importCurricula()" [disabled]="loadingCurriculumImport">
             <i class="pi" [ngClass]="loadingCurriculumImport ? 'pi-spin pi-spinner' : 'pi-download'"></i>
-            <span><small>{{ loadingCurriculumImport ? 'EBS BAĞLANTISI AÇIK' : 'MÜFREDAT AKTARIMI' }}</small>{{ loadingCurriculumImport ? 'Veriler Alınıyor...' : 'Tüm Bölümleri Güncelle' }}</span>
+            <span><small>{{ loadingCurriculumImport ? 'EBS BAĞLANTISI AÇIK' : 'GÜVENLİ EBS EŞİTLEMESİ' }}</small>{{ loadingCurriculumImport ? 'Veriler Alınıyor...' : 'Bölümleri ve Dersleri Eşitle' }}</span>
           </button>
         </div>
 

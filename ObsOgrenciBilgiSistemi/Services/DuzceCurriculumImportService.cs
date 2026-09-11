@@ -30,22 +30,59 @@ public sealed class DuzceCurriculumImportService
 
     public async Task<CurriculumImportResult> ImportAllAsync(CancellationToken cancellationToken)
     {
+        var result = new CurriculumImportResult();
+        var sourcePrograms = (await GetProgramsAsync(cancellationToken))
+            .Where(program => program.IsNormalEducation)
+            .GroupBy(program => NormalizeName(program.Name), StringComparer.Ordinal)
+            .Select(group => group
+                .OrderBy(program => program.Name.Length)
+                .ThenBy(program => program.Name, StringComparer.OrdinalIgnoreCase)
+                .First())
+            .OrderBy(program => GetDepartmentName(program.Name), StringComparer.Create(new CultureInfo("tr-TR"), true))
+            .ToList();
+
+        if (sourcePrograms.Count == 0)
+            throw new InvalidOperationException("EBS lisans programları listesinde normal öğretim programı bulunamadı.");
+        result.SourceProgramCount = sourcePrograms.Count;
+
         var departments = await _context.Bolumler
             .OrderBy(department => department.Adi)
             .ToListAsync(cancellationToken);
+        var departmentsByName = departments
+            .GroupBy(department => NormalizeName(department.Adi), StringComparer.Ordinal)
+            .ToDictionary(group => group.Key, group => group.First(), StringComparer.Ordinal);
+        var importTargets = new List<(Bolum Department, ProgramLink Program)>();
 
-        var programs = await GetProgramsAsync(cancellationToken);
-        var result = new CurriculumImportResult();
-
-        foreach (var department in departments)
+        foreach (var program in sourcePrograms)
         {
-            var program = FindProgram(department.Adi, programs);
-            if (program is null)
+            var normalizedName = NormalizeName(program.Name);
+            if (!departmentsByName.TryGetValue(normalizedName, out var department))
             {
-                result.UnmatchedDepartments.Add(department.Adi);
-                continue;
+                department = new Bolum { Adi = GetDepartmentName(program.Name) };
+                _context.Bolumler.Add(department);
+                departments.Add(department);
+                departmentsByName.Add(normalizedName, department);
+                result.AddedDepartmentCount++;
+            }
+            else
+            {
+                result.MatchedDepartmentCount++;
             }
 
+            importTargets.Add((department, program));
+        }
+
+        var sourceProgramNames = sourcePrograms
+            .Select(program => NormalizeName(program.Name))
+            .ToHashSet(StringComparer.Ordinal);
+        result.UnmatchedDepartments.AddRange(departments
+            .Where(department => !sourceProgramNames.Contains(NormalizeName(department.Adi)))
+            .Select(department => department.Adi));
+
+        await _context.SaveChangesAsync(cancellationToken);
+
+        foreach (var (department, program) in importTargets)
+        {
             try
             {
                 var curriculum = await GetLatestCurriculumAsync(program, cancellationToken);
@@ -108,24 +145,6 @@ public sealed class DuzceCurriculumImportService
         return result;
     }
 
-    private static ProgramLink? FindProgram(string departmentName, IReadOnlyCollection<ProgramLink> programs)
-    {
-        var target = NormalizeName(departmentName);
-        return programs
-            .Where(program => program.IsNormalEducation)
-            .Select(program => new { Program = program, Name = NormalizeName(program.Name) })
-            .Where(item => item.Name == target)
-            .Select(item => item.Program)
-            .FirstOrDefault()
-            ?? programs
-                .Where(program => program.IsNormalEducation)
-                .Select(program => new { Program = program, Name = NormalizeName(program.Name) })
-                .Where(item => item.Name.Contains(target, StringComparison.Ordinal) || target.Contains(item.Name, StringComparison.Ordinal))
-                .OrderBy(item => Math.Abs(item.Name.Length - target.Length))
-                .Select(item => item.Program)
-                .FirstOrDefault();
-    }
-
     private static string NormalizeName(string value)
     {
         var decoded = WebUtility.HtmlDecode(value);
@@ -139,6 +158,13 @@ public sealed class DuzceCurriculumImportService
         }
         return builder.ToString();
     }
+
+    private static string GetDepartmentName(string programName) =>
+        Regex.Replace(
+            CleanText(programName),
+            @"\s*\(\s*Normal\s+Öğretim\s*\)\s*$",
+            string.Empty,
+            RegexOptions.IgnoreCase | RegexOptions.CultureInvariant).Trim();
 
     private async Task<IReadOnlyList<ProgramLink>> GetProgramsAsync(CancellationToken cancellationToken)
     {
@@ -330,6 +356,9 @@ public sealed class DuzceCurriculumImportService
 
 public sealed class CurriculumImportResult
 {
+    public int SourceProgramCount { get; set; }
+    public int AddedDepartmentCount { get; set; }
+    public int MatchedDepartmentCount { get; set; }
     public int AddedCourseCount { get; set; }
     public int UpdatedCourseCount { get; set; }
     public List<ImportedDepartment> ImportedDepartments { get; } = [];

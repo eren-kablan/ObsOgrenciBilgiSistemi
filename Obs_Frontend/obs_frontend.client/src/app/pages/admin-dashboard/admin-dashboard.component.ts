@@ -275,9 +275,9 @@ export class AdminDashboardComponent implements OnInit {
   async importCurricula(): Promise<void> {
     if (this.loadingCurriculumImport) return;
     const confirmed = await this.notification.confirm(
-      'Kayıtlı tüm bölümlerin dersleri Düzce Üniversitesi EBS üzerinden güncellenecek. Devam edilsin mi?',
-      'Müfredatı güncelle',
-      'Güncellemeyi başlat'
+      'Düzce Üniversitesi EBS sayfasındaki normal öğretim lisans programları bölümlere eklenecek ve müfredatları alınacak. Mevcut bölüm ID’leri, ders kayıtları ve kullanıcı bağlantıları korunur; hiçbir kayıt silinmez. Devam edilsin mi?',
+      'Bölümleri ve müfredatı eşitle',
+      'Eşitlemeyi başlat'
     );
     if (!confirmed) return;
 
@@ -285,13 +285,17 @@ export class AdminDashboardComponent implements OnInit {
     this.http.post<any>(`${API_URL}/Courses/mufredat-ice-aktar`, {}, { headers: this.getAuthHeaders() }).subscribe({
       next: result => {
         this.loadingCurriculumImport = false;
+        this.fetchDepartments();
         this.fetchDerslerVeHocalar();
+        const sourcePrograms = result?.sourceProgramCount || 0;
+        const addedDepartments = result?.addedDepartmentCount || 0;
+        const matchedDepartments = result?.matchedDepartmentCount || 0;
         const imported = result?.importedDepartments?.length || 0;
         const added = result?.addedCourseCount || 0;
         const updated = result?.updatedCourseCount || 0;
         const unmatched = result?.unmatchedDepartments?.length || 0;
         const errors = result?.errors?.length || 0;
-        this.notification.success(`Müfredat aktarımı tamamlandı.\n\n${imported} bölüm işlendi.\n${added} ders eklendi.\n${updated} ders güncellendi.\n${unmatched} bölüm eşleşmedi.\n${errors} hata oluştu.`);
+        this.notification.success(`EBS eşitlemesi tamamlandı.\n\n${sourcePrograms} benzersiz lisans programı bulundu.\n${addedDepartments} yeni bölüm eklendi.\n${matchedDepartments} mevcut bölüm korundu.\n${imported} bölümün müfredatı işlendi.\n${added} ders eklendi.\n${updated} ders güncellendi.\n${unmatched} yerel bölüm EBS'de eşleşmedi.\n${errors} müfredat alınamadı.`);
       },
       error: error => {
         this.loadingCurriculumImport = false;
