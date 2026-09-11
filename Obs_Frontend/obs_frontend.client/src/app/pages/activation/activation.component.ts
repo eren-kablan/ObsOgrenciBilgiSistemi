@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
+import { NotificationService } from '../../services/notification.service';
 
 @Component({
   selector: 'app-activation',
@@ -149,7 +150,8 @@ export class ActivationComponent implements OnInit {
   constructor(
     private http: HttpClient,
     private router: Router,
-    private route: ActivatedRoute // URL'deki token'ı yakalamak için eklendi
+    private route: ActivatedRoute, // URL'deki token'ı yakalamak için eklendi
+    private notification: NotificationService
   ) { }
 
   ngOnInit() {
@@ -161,15 +163,18 @@ export class ActivationComponent implements OnInit {
 
   setNewPassword() {
     if (!this.password || !this.confirmPassword) {
-      alert('Lütfen tüm alanları doldurun.');
+      this.notification.warning('Lütfen tüm alanları doldurun.');
       return;
     }
 
     if (this.password !== this.confirmPassword) {
-      alert('Girdiğiniz şifreler birbiriyle uyuşmuyor!');
+      this.notification.warning('Girdiğiniz şifreler birbiriyle uyuşmuyor.');
       return;
     }
-    if (!this.activationToken && !this.currentPassword) { alert('Geçici şifrenizi girin.'); return; }
+    if (!this.activationToken && !this.currentPassword) {
+      this.notification.warning('Geçici şifrenizi girin.');
+      return;
+    }
 
     this.loading = true;
 
@@ -178,13 +183,13 @@ export class ActivationComponent implements OnInit {
       : this.http.post(`${environment.apiBaseUrl}/Auth/ChangePassword`, { currentPassword: this.currentPassword, newPassword: this.password });
     request.subscribe({
       next: () => {
-        alert('Hesabınız başarıyla aktifleştirildi! Yeni şifrenizle giriş yapabilirsiniz.');
+        this.notification.success('Hesabınız aktifleştirildi. Yeni şifrenizle giriş yapabilirsiniz.');
         this.router.navigate(['/login']);
       },
       error: (err) => {
         console.error('Aktivasyon hatası:', err);
         const errMsg = err.error?.message || err.error || 'Aktivasyon güncellenemedi.';
-        alert('İşlem başarısız: ' + errMsg);
+        this.notification.error(errMsg, 'Aktivasyon başarısız');
         this.loading = false;
       }
     });

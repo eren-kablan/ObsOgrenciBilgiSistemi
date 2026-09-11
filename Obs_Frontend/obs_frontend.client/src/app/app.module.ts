@@ -17,6 +17,7 @@ import { CheckboxModule } from 'primeng/checkbox';
 import { InputTextModule } from 'primeng/inputtext';
 import { PasswordModule } from 'primeng/password';
 import { RippleModule } from 'primeng/ripple';
+import { NotificationDialogComponent } from './shared/notification-dialog/notification-dialog.component';
 
 @NgModule({
   declarations: [
@@ -31,6 +32,7 @@ import { RippleModule } from 'primeng/ripple';
     LoginComponent,
     DashboardComponent,
     AdminDashboardComponent,
+    NotificationDialogComponent,
     ButtonModule,
     CheckboxModule,
     InputTextModule,

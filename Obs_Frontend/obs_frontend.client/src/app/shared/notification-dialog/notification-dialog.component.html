@@ -1,0 +1,61 @@
+<div
+  *ngIf="notification$ | async as notification"
+  class="dialog-backdrop"
+  role="presentation"
+>
+  <section
+    class="dialog-card"
+    [attr.data-type]="notification.type"
+    role="alertdialog"
+    aria-modal="true"
+    [attr.aria-labelledby]="'notification-title'"
+    [attr.aria-describedby]="'notification-message'"
+  >
+    <div class="dialog-accent"></div>
+
+    <div class="dialog-content">
+      <div class="dialog-icon" aria-hidden="true">
+        <i class="pi" [ngClass]="iconFor(notification.type)"></i>
+      </div>
+
+      <div class="dialog-copy">
+        <span class="dialog-label">OBS BİLDİRİMİ</span>
+        <h2 id="notification-title">{{ notification.title }}</h2>
+        <p id="notification-message">{{ notification.message }}</p>
+
+        <input
+          *ngIf="notification.mode === 'prompt'"
+          class="dialog-input"
+          type="text"
+          [value]="inputValue"
+          [placeholder]="notification.placeholder || ''"
+          (input)="inputValue = $any($event.target).value"
+          (keydown.enter)="inputValue.trim() && accept(inputValue)"
+          autofocus
+        />
+      </div>
+    </div>
+
+    <div class="dialog-actions">
+      <button
+        *ngIf="notification.mode !== 'notice'"
+        type="button"
+        class="button-secondary"
+        (click)="close()"
+      >
+        Vazgeç
+      </button>
+
+      <button
+        type="button"
+        class="button-primary"
+        [disabled]="notification.mode === 'prompt' && !inputValue.trim()"
+        (click)="accept(notification.mode === 'prompt' ? inputValue : '')"
+        [attr.autofocus]="notification.mode === 'prompt' ? null : true"
+      >
+        {{ notification.confirmLabel }}
+        <i class="pi pi-arrow-right" aria-hidden="true"></i>
+      </button>
+    </div>
+  </section>
+</div>

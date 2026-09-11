@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { environment } from '../../../environments/environment';
+import { NotificationService } from '../../services/notification.service';
 
 @Component({
   selector: 'app-not-giris',
@@ -101,7 +102,11 @@ export class NotGirisComponent implements OnInit {
   saving: boolean = false;
   loadingStudents: boolean = false;
 
-  constructor(private http: HttpClient, private router: Router) { }
+  constructor(
+    private http: HttpClient,
+    private router: Router,
+    private notification: NotificationService
+  ) { }
 
   ngOnInit() {
     const email = sessionStorage.getItem('userEmail') || '';
@@ -168,12 +173,12 @@ export class NotGirisComponent implements OnInit {
 
     this.http.post(`${environment.apiBaseUrl}/Notlar/TopluKaydet`, payload).subscribe({
       next: () => {
-        alert('Tüm sınıfın notları başarıyla kaydedildi!');
+        this.notification.success('Tüm sınıfın notları başarıyla kaydedildi.');
         this.saving = false;
       },
       error: (err) => {
         console.error('Toplu kayıt hatası:', err);
-        alert('Notlar kaydedilirken bir hata oluştu.');
+        this.notification.error('Notlar kaydedilirken bir hata oluştu.');
         this.saving = false;
       }
     });

@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
+import { NotificationService } from '../../services/notification.service';
 
 @Component({
   // Login ekranı
@@ -415,7 +416,11 @@ export class LoginComponent {
   showPassword: boolean = false;
 
   // Giriş işlemleri
-  constructor(private authService: AuthService, private router: Router) { }
+  constructor(
+    private authService: AuthService,
+    private router: Router,
+    private notification: NotificationService
+  ) { }
 
   togglePasswordVisibility() {
     this.showPassword = !this.showPassword;
@@ -461,7 +466,10 @@ export class LoginComponent {
 
         // 2. İLK GİRİŞ / ŞİFRE DEĞİŞTİRME KONTROLÜ
         if (isFirstLogin) {
-          alert('Sisteme ilk kez geçici şifrenizle giriş yaptınız. Güvenliğiniz için lütfen yeni şifrenizi belirleyiniz.');
+          this.notification.info(
+            'Sisteme ilk kez geçici şifrenizle giriş yaptınız. Güvenliğiniz için lütfen yeni şifrenizi belirleyin.',
+            'Şifrenizi yenileyin'
+          );
           this.router.navigate(['/aktivasyon']);
           return;
         }
@@ -471,7 +479,7 @@ export class LoginComponent {
       },
       error: (err: any) => {
         console.error('Giriş hatası:', err);
-        alert('Giriş başarısız! E-posta veya şifre yanlış.');
+        this.notification.error('E-posta adresi veya şifre yanlış.', 'Giriş başarısız');
       }
     });
   }

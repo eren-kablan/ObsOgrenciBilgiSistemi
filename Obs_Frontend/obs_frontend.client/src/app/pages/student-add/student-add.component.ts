@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { environment } from '../../../environments/environment';
+import { NotificationService } from '../../services/notification.service';
 
 @Component({
   selector: 'app-student-add',
@@ -53,17 +54,21 @@ export class StudentAddComponent {
     sinif: 1
   };
 
-  constructor(private http: HttpClient, private router: Router) { }
+  constructor(
+    private http: HttpClient,
+    private router: Router,
+    private notification: NotificationService
+  ) { }
 
   saveStudent() {
     this.http.post(`${environment.apiBaseUrl}/Students`, this.student).subscribe({
       next: () => {
-        alert('Öğrenci başarıyla eklendi!');
+        this.notification.success('Öğrenci başarıyla eklendi.');
         this.router.navigate(['/admin-dashboard']);
       },
       error: (err) => {
         console.error(err);
-        alert('Öğrenci eklenirken hata oluştu.');
+        this.notification.error('Öğrenci eklenirken bir hata oluştu.');
       }
     });
   }

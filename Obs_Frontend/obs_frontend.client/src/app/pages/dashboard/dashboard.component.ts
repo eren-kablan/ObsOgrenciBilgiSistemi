@@ -7,6 +7,7 @@ import { CalendarDay } from '../../shared/calendar/calendar.models';
 import { createCalendarView } from '../../shared/calendar/calendar.utils';
 import { Announcement, CourseRequest, ExamResult } from './dashboard.models';
 import { environment } from '../../../environments/environment';
+import { NotificationService } from '../../services/notification.service';
 
 const API_URL = environment.apiBaseUrl;
 
@@ -83,7 +84,11 @@ export class DashboardComponent implements OnInit {
   lecturerAnnouncement = { title: '', description: '' };
   // ============================================================
 
-  constructor(private router: Router, private http: HttpClient) { }
+  constructor(
+    private router: Router,
+    private http: HttpClient,
+    private notification: NotificationService
+  ) { }
 
   ngOnInit() {
     this.userEmail = sessionStorage.getItem('userEmail') || '';
@@ -179,7 +184,7 @@ export class DashboardComponent implements OnInit {
     if (item.isPersonal && item.id) {
       this.http.delete(`${API_URL}/notifications/${item.id}`).subscribe({
         next: removeFromList,
-        error: error => alert(error?.error?.message || 'Bildirim silinemedi.')
+        error: error => this.notification.error(error?.error?.message || 'Bildirim silinemedi.')
       });
       return;
     }
@@ -214,12 +219,12 @@ export class DashboardComponent implements OnInit {
       next: () => {
         this.publishingLecturerAnnouncement = false;
         this.lecturerAnnouncement = { title: '', description: '' };
-        alert('Duyuru öğrencilere başarıyla yayınlandı.');
+        this.notification.success('Duyuru öğrencilere başarıyla yayınlandı.');
         this.anaMenuyeDon();
       },
       error: error => {
         this.publishingLecturerAnnouncement = false;
-        alert(error?.error?.message || 'Duyuru yayınlanamadı.');
+        this.notification.error(error?.error?.message || 'Duyuru yayınlanamadı.');
       }
     });
   }
@@ -242,8 +247,8 @@ export class DashboardComponent implements OnInit {
 
   requestCourse(course: any): void {
     this.http.post(`${API_URL}/course-requests`, { courseId: course.id }).subscribe({
-      next: () => { alert('Ders talebiniz admin onayına gönderildi.'); this.loadCourseRequestData(); },
-      error: error => alert(error?.error?.message || 'Ders talebi oluşturulamadı.')
+      next: () => { this.notification.success('Ders talebiniz yönetici onayına gönderildi.'); this.loadCourseRequestData(); },
+      error: error => this.notification.error(error?.error?.message || 'Ders talebi oluşturulamadı.')
     });
   }
 
@@ -275,8 +280,8 @@ export class DashboardComponent implements OnInit {
   }
 
   dersKaydiEkraniniAc() {
-    if (this.registrationStatus?.durum === 'Bekliyor') return void alert(`Ders kaydınız danışman onayında bekliyor. Danışman: ${this.registrationStatus.danisman}`);
-    if (this.registrationStatus?.durum === 'Onaylandi') return void alert('Bu dönem ders kaydınız onaylandı. Yeniden ders kaydı yapamazsınız.');
+    if (this.registrationStatus?.durum === 'Bekliyor') return void this.notification.info(`Ders kaydınız danışman onayında bekliyor. Danışman: ${this.registrationStatus.danisman}`);
+    if (this.registrationStatus?.durum === 'Onaylandi') return void this.notification.info('Bu dönem ders kaydınız onaylandı. Yeniden ders kaydı yapamazsınız.');
     this.aktifSekme = 'dersKaydi';
     this.loadExamResults();
 
@@ -301,20 +306,30 @@ export class DashboardComponent implements OnInit {
   loadRegistrationApprovals(): void {
     this.http.get<any[]>(`${API_URL}/course-registration-requests/pending`).subscribe({
       next: requests => this.registrationRequests = requests || [],
-      error: error => alert(error?.error?.message || 'Bekleyen ders kayıtları yüklenemedi.')
+      error: error => this.notification.error(error?.error?.message || 'Bekleyen ders kayıtları yüklenemedi.')
     });
   }
 
-  decideRegistration(request: any, approve: boolean): void {
+  async decideRegistration(request: any, approve: boolean): Promise<void> {
     let body: any = {};
     if (!approve) {
-      const reason = prompt(`${request.ogrenciAdi} için ret gerekçesini yazınız:`)?.trim();
+      const reason = await this.notification.prompt(
+        `${request.ogrenciAdi} için ret gerekçesini yazın.`,
+        'Ders kaydını reddet',
+        'Ret gerekçesi'
+      );
       if (!reason) return;
       body = { reason };
-    } else if (!confirm(`${request.ogrenciAdi} öğrencisinin seçtiği ${request.dersler.length} dersi onaylıyor musunuz?`)) return;
+    } else {
+      const confirmed = await this.notification.confirm(
+        `${request.ogrenciAdi} öğrencisinin seçtiği ${request.dersler.length} dersi onaylıyor musunuz?`,
+        'Ders kaydını onayla'
+      );
+      if (!confirmed) return;
+    }
     this.http.post(`${API_URL}/course-registration-requests/${request.id}/${approve ? 'approve' : 'reject'}`, body).subscribe({
-      next: () => { alert(approve ? 'Öğrencinin ders kaydı onaylandı.' : 'Ders kaydı gerekçesiyle reddedildi.'); this.loadRegistrationApprovals(); },
-      error: error => alert(error?.error?.message || 'Ders kayıt kararı kaydedilemedi.')
+      next: () => { this.notification.success(approve ? 'Öğrencinin ders kaydı onaylandı.' : 'Ders kaydı gerekçesiyle reddedildi.'); this.loadRegistrationApprovals(); },
+      error: error => this.notification.error(error?.error?.message || 'Ders kayıt kararı kaydedilemedi.')
     });
   }
 
@@ -324,7 +339,7 @@ export class DashboardComponent implements OnInit {
     this.attendanceStudents = [];
     this.http.get<any[]>(`${API_URL}/Devamsizliklar/akademisyen-dersleri`).subscribe({
       next: courses => this.attendanceCourses = courses || [],
-      error: error => alert(error?.error?.message || 'Dersleriniz yüklenemedi.')
+      error: error => this.notification.error(error?.error?.message || 'Dersleriniz yüklenemedi.')
     });
   }
 
@@ -342,7 +357,7 @@ export class DashboardComponent implements OnInit {
       error: error => {
         this.loadingStudentAttendance = false;
         this.studentAttendanceCourses = [];
-        alert(error?.error?.message || 'Devamsızlık bilgileri yüklenemedi.');
+        this.notification.error(error?.error?.message || 'Devamsızlık bilgileri yüklenemedi.');
       }
     });
   }
@@ -358,7 +373,7 @@ export class DashboardComponent implements OnInit {
       },
       error: error => {
         this.loadingStudentAttendance = false;
-        alert(error?.error?.message || 'Haftalık devamsızlık bilgileri yüklenemedi.');
+        this.notification.error(error?.error?.message || 'Haftalık devamsızlık bilgileri yüklenemedi.');
       }
     });
   }
@@ -382,7 +397,7 @@ export class DashboardComponent implements OnInit {
     if (!this.attendanceCourseId) return;
     this.http.get<any[]>(`${API_URL}/Devamsizliklar/ders/${this.attendanceCourseId}/hafta/${this.attendanceWeek}`).subscribe({
       next: students => this.attendanceStudents = (students || []).map(student => ({ ...student, katildi: student.katildi !== false })),
-      error: error => alert(error?.error?.message || 'Öğrenci yoklaması yüklenemedi.')
+      error: error => this.notification.error(error?.error?.message || 'Öğrenci yoklaması yüklenemedi.')
     });
   }
 
@@ -400,11 +415,11 @@ export class DashboardComponent implements OnInit {
     }).subscribe({
       next: response => {
         this.savingAttendance = false;
-        alert(response.message || 'Devamsızlık kaydedildi.');
+        this.notification.success(response.message || 'Devamsızlık kaydedildi.');
       },
       error: error => {
         this.savingAttendance = false;
-        alert(error?.error?.message || 'Devamsızlık kaydedilemedi.');
+        this.notification.error(error?.error?.message || 'Devamsızlık kaydedilemedi.');
       }
     });
   }
@@ -415,7 +430,7 @@ export class DashboardComponent implements OnInit {
 
   dersEkle(ders: any) {
     if (this.registeredAkts + this.selectedAkts + ders.akts > this.maxAkts) {
-      alert(`Bu dersle birlikte 40 AKTS sınırını aşıyorsunuz. Kalan hakkınız: ${this.maxAkts - this.registeredAkts - this.selectedAkts} AKTS.`);
+      this.notification.warning(`Bu dersle birlikte 40 AKTS sınırını aşıyorsunuz. Kalan hakkınız: ${this.maxAkts - this.registeredAkts - this.selectedAkts} AKTS.`);
       return;
     }
     if (!this.secilenDersler.find(d => d.id === ders.id)) {
@@ -497,11 +512,11 @@ export class DashboardComponent implements OnInit {
 
   kaydiOnayla() {
     if (this.secilenDersler.length === 0) {
-      alert('Lütfen en az bir ders seçin!');
+      this.notification.warning('Lütfen en az bir ders seçin.');
       return;
     }
     if (this.totalPlannedAkts > this.maxAkts) {
-      alert('Toplam ders kaydınız 40 AKTS sınırını aşamaz.');
+      this.notification.warning('Toplam ders kaydınız 40 AKTS sınırını aşamaz.');
       return;
     }
 
@@ -509,10 +524,10 @@ export class DashboardComponent implements OnInit {
       courseIds: this.secilenDersler.map(course => course.id), academicYear: this.academicYear, term: this.aktifDonem
     }).subscribe({
       next: response => {
-        alert(response.message || 'Ders seçiminiz danışman onayına gönderildi.');
+        this.notification.success(response.message || 'Ders seçiminiz danışman onayına gönderildi.');
         this.secilenDersler = []; this.toplamKredi = 0; this.loadRegistrationStatus(); this.anaMenuyeDon();
       },
-      error: error => alert(error?.error?.message || 'Ders seçiminiz danışman onayına gönderilemedi.')
+      error: error => this.notification.error(error?.error?.message || 'Ders seçiminiz danışman onayına gönderilemedi.')
     });
   }
   // ==========================================================
