@@ -775,14 +775,25 @@
                 <input type="email" [(ngModel)]="lecturer.email" name="lEmail" [disabled]="true" readonly placeholder="Ad ve soyada göre oluşturulur" style="background-color: #f1f5f9; cursor: not-allowed;" />
               </div>
               <div class="field">
-                <label>Bölüm ID</label>
-                <input type="number" [(ngModel)]="lecturer.bolumId" name="lBolumId" required placeholder="Örn: 1" />
+                <label for="lecturerDepartment">Bölüm</label>
+                <select
+                  id="lecturerDepartment"
+                  [(ngModel)]="lecturer.bolumId"
+                  name="lBolumId"
+                  required
+                  [disabled]="departments.length === 0"
+                >
+                  <option *ngIf="departments.length === 0" [ngValue]="0" disabled>Bölüm bulunamadı</option>
+                  <option *ngFor="let department of departments" [ngValue]="department.id">
+                    {{ department.ad }}
+                  </option>
+                </select>
               </div>
             </div>
 
             <div class="form-actions-row">
               <button type="button" class="btn-secondary-cancel" (click)="switchView('dashboard', $event)">Vazgeç</button>
-              <button type="submit" class="btn-primary-submit" [disabled]="loadingLecturer">Akademisyeni Kaydet</button>
+              <button type="submit" class="btn-primary-submit" [disabled]="loadingLecturer || departments.length === 0">Akademisyeni Kaydet</button>
             </div>
           </form>
         </div>

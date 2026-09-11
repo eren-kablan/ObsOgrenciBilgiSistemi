@@ -519,6 +519,9 @@ export class AdminDashboardComponent implements OnInit {
 
   createLecturer(): void {
     if (!this.lecturer.adi || !this.lecturer.soyadi) return void this.notification.warning('Lütfen akademisyen adını ve soyadını girin.');
+    if (!this.departments.some(department => department.id === Number(this.lecturer.bolumId))) {
+      return void this.notification.warning('Lütfen geçerli bir bölüm seçin.');
+    }
     this.loadingLecturer = true;
     this.http.post<any>(`${API_URL}/Lecturers`, this.lecturer, { headers: this.getAuthHeaders() }).subscribe({
       next: response => {
@@ -530,7 +533,7 @@ export class AdminDashboardComponent implements OnInit {
             : `Akademisyen eklendi.\nE-posta: ${email}`
         );
         this.loadingLecturer = false;
-        this.lecturer = { unvani: 'Prof. Dr.', adi: '', soyadi: '', email: '', bolumId: 1 };
+        this.lecturer = { unvani: 'Prof. Dr.', adi: '', soyadi: '', email: '', bolumId: this.departments[0]?.id ?? 1 };
         this.switchView('lecturer-list');
       },
       error: () => { this.notification.error('Akademisyen eklenirken hata oluştu.'); this.loadingLecturer = false; }
