@@ -86,9 +86,9 @@ public sealed class DuzceCurriculumImportService
             try
             {
                 var curriculum = await GetLatestCurriculumAsync(program, cancellationToken);
-                if (curriculum.Courses.Count == 0)
+                if (curriculum is null || curriculum.Courses.Count == 0)
                 {
-                    result.Errors.Add($"{department.Adi}: Aktif müfredatta ders bulunamadı.");
+                    result.Errors.Add($"{department.Adi}: Yayımlanmış aktif müfredat bulunamadı.");
                     continue;
                 }
 
@@ -188,7 +188,7 @@ public sealed class DuzceCurriculumImportService
             .ToList();
     }
 
-    private async Task<CurriculumPage> GetLatestCurriculumAsync(
+    private async Task<CurriculumPage?> GetLatestCurriculumAsync(
         ProgramLink program,
         CancellationToken cancellationToken)
     {
@@ -228,7 +228,7 @@ public sealed class DuzceCurriculumImportService
             if (courses.Count > 0) return new CurriculumPage(year.Name, courses);
         }
 
-        throw new InvalidOperationException("Yayımlanmış aktif müfredat bulunamadı.");
+        return null;
     }
 
     private static List<ImportedCourse> ParseCourses(HtmlDocument document)
