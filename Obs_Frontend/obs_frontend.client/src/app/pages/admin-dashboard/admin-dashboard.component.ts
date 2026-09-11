@@ -41,6 +41,9 @@ export class AdminDashboardComponent implements OnInit {
   // Öğrenci ve akademisyen verileri
   targetStudentId?: number;
   targetLecturerId?: number;
+  studentFirstNameSearch = '';
+  studentLastNameSearch = '';
+  deletingStudentId?: number;
   lecturerFirstNameSearch = '';
   lecturerLastNameSearch = '';
   deletingLecturerId?: number;
@@ -204,7 +207,13 @@ export class AdminDashboardComponent implements OnInit {
     event?.preventDefault();
     event?.stopPropagation();
     this.activeView = view;
-    if (view === 'student-list') this.fetchAllStudents();
+    if (view === 'student-list' || view === 'student-delete') {
+      if (view === 'student-delete') {
+        this.studentFirstNameSearch = '';
+        this.studentLastNameSearch = '';
+      }
+      this.fetchAllStudents();
+    }
     else if (view === 'lecturer-list' || view === 'lecturer-delete') {
       if (view === 'lecturer-delete') {
         this.lecturerFirstNameSearch = '';
@@ -391,6 +400,17 @@ export class AdminDashboardComponent implements OnInit {
 
   onStudentDepartmentFilterChange(): void { this.fetchAllStudents(); }
 
+  get filteredStudents(): Student[] {
+    const firstName = this.studentFirstNameSearch.trim().toLocaleLowerCase('tr-TR');
+    const lastName = this.studentLastNameSearch.trim().toLocaleLowerCase('tr-TR');
+    if (!firstName && !lastName) return this.studentList;
+
+    return this.studentList.filter(student =>
+      (!firstName || student.adi.toLocaleLowerCase('tr-TR').includes(firstName)) &&
+      (!lastName || student.soyadi.toLocaleLowerCase('tr-TR').includes(lastName))
+    );
+  }
+
   createStudent(): void {
     this.loadingStudent = true;
     this.http.post(`${API_URL}/Students`, this.student, { headers: this.getAuthHeaders() }).subscribe({
@@ -405,19 +425,34 @@ export class AdminDashboardComponent implements OnInit {
     });
   }
 
-  async deleteStudent(): Promise<void> {
-    if (!this.targetStudentId) return;
+  async deleteStudent(student: Student): Promise<void> {
+    const studentId = student.id;
+    if (!studentId || this.deletingStudentId) return;
+
+    const studentName = `${student.adi} ${student.soyadi}`.trim();
     const confirmed = await this.notification.confirm(
-      `${this.targetStudentId} ID'li öğrenciyi silmek istediğinize emin misiniz?`,
+      `${studentName} (${student.ogrenciNumarasi || 'öğrenci numarası yok'}) sistemden silinecek. Ders kayıtları, notları ve devamsızlık bilgileri de kaldırılacak. Bu işlemi onaylıyor musunuz?`,
       'Öğrenciyi sil',
       'Öğrenciyi sil'
     );
     if (!confirmed) return;
-    this.http.delete(`${API_URL}/Students/${this.targetStudentId}`, { headers: this.getAuthHeaders() }).subscribe({
-      next: () => { this.notification.success('Öğrenci başarıyla silindi.'); this.targetStudentId = undefined; this.fetchStats(); this.switchView('student-list'); },
-      error: () => this.notification.error('Silme işlemi başarısız.')
+
+    this.deletingStudentId = studentId;
+    this.http.delete(`${API_URL}/Students/${studentId}`, { headers: this.getAuthHeaders() }).subscribe({
+      next: () => {
+        this.deletingStudentId = undefined;
+        this.studentList = this.studentList.filter(item => item.id !== studentId);
+        this.stats.totalStudents = Math.max(0, this.stats.totalStudents - 1);
+        this.notification.success(`${studentName} sistemden silindi.`);
+      },
+      error: error => {
+        this.deletingStudentId = undefined;
+        this.notification.error(error?.error?.message || 'Öğrenci silinemedi.');
+      }
     });
   }
+
+  quickDeleteStudent(student: Student): void { void this.deleteStudent(student); }
 
   fetchStudentForUpdate(): void {
     if (!this.targetStudentId) return;
